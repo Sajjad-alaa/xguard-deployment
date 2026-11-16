@@ -15,7 +15,7 @@ variable "proxy_url" {
 }
 
 variable "grpc_port" {
-  description = "Port to be used to communicate with Defguard Core"
+  description = "Port to be used to communicate with XGuard Core"
   type        = string
 }
 
@@ -25,23 +25,23 @@ variable "network_interface_id" {
 }
 
 variable "arch" {
-  description = "Architecture of the Defguard Proxy package to be installed"
+  description = "Architecture of the XGuard Proxy package to be installed"
   type        = string
 }
 
 variable "package_version" {
-  description = "Version of the Defguard Proxy package to be installed"
+  description = "Version of the XGuard Proxy package to be installed"
   type        = string
 }
 
 variable "http_port" {
-  description = "Port to be used to access Defguard Proxy via HTTP"
+  description = "Port to be used to access XGuard Proxy via HTTP"
   type        = number
   default     = 8080
 }
 
 variable "log_level" {
-  description = "Log level for Defguard Proxy. Possible values: trace, debug, info, warn, error"
+  description = "Log level for XGuard Proxy. Possible values: trace, debug, info, warn, error"
   type        = string
   default     = "info"
 }

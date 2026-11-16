@@ -1,0 +1,184 @@
+packer {
+  required_plugins {
+    qemu = {
+      version = ">= 1.0.9"
+      source  = "github.com/hashicorp/qemu"
+    }
+  }
+}
+
+variable "vm_name"   { default = "xguard" }
+variable "disk_size" { default = "20G" }
+variable "memory"    { default = 2048 }
+variable "cpus"      { default = 2 }
+variable "ssh_user"     { default = "ubuntu" }
+variable "iso_url"      { default = "https://releases.ubuntu.com/24.04.4/ubuntu-24.04.4-live-server-amd64.iso" }
+variable "core_tag"     { type = string }
+variable "proxy_tag"    { type = string }
+variable "gateway_tag"  { type = string }
+
+source "qemu" "ubuntu24" {
+  iso_url      = var.iso_url
+  iso_checksum = "sha256:e907d92eeec9df64163a7e454cbc8d7755e8ddc7ed42f99dbc80c40f1a138433"
+
+  vm_name          = var.vm_name
+  memory           = var.memory
+  cpus             = var.cpus
+  disk_size        = var.disk_size
+  accelerator      = "kvm"
+  format           = "qcow2"
+  output_directory = "output/${var.vm_name}"
+
+  net_device     = "virtio-net"
+  disk_interface = "virtio"
+  machine_type   = "q35"
+
+  ssh_username           = var.ssh_user
+  ssh_password           = "ubuntu"
+  ssh_timeout            = "40m"
+  ssh_handshake_attempts = 100
+
+  http_content = {
+    "/meta-data" = file("${path.root}/http/meta-data")
+    "/user-data" = file("${path.root}/http/user-data")
+  }
+  boot_wait = "5s"
+  boot_command = [
+    "c<wait5>",
+    "linux /casper/vmlinuz autoinstall 'ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait5>",
+    "initrd /casper/initrd<enter><wait5>",
+    "boot<enter>"
+  ]
+
+  shutdown_command = "sudo shutdown -P now"
+  headless         = true
+}
+
+build {
+  sources = ["source.qemu.ubuntu24"]
+
+  provisioner "file" {
+    source      = "files/docker-setup.sh"
+    destination = "/tmp/docker-setup.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/99-xguard.cfg"
+    destination = "/tmp/99-xguard.cfg"
+  }
+
+  provisioner "file" {
+    source      = "files/docker-compose.template.yaml"
+    destination = "/tmp/docker-compose.template.yaml"
+  }
+
+  provisioner "file" {
+    source      = "files/lib.sh"
+    destination = "/tmp/lib.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/generate-env.sh"
+    destination = "/tmp/generate-env.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/generate-compose.sh"
+    destination = "/tmp/generate-compose.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/xguard-init.service"
+    destination = "/tmp/xguard-init.service"
+  }
+
+  provisioner "file" {
+    source      = "files/dg-ctl"
+    destination = "/tmp/dg-ctl"
+  }
+
+  provisioner "file" {
+    source      = "files/install-dg-ctl.sh"
+    destination = "/tmp/install-dg-ctl.sh"
+  }
+
+  provisioner "file" {
+    source      = "manifest.json"
+    destination = "/tmp/manifest.json"
+  }
+
+  provisioner "file" {
+    source      = "files/xguard-firewall.sh"
+    destination = "/tmp/xguard-firewall.sh"
+  }
+
+  provisioner "file" {
+    source      = "files/xguard-firewall.service"
+    destination = "/tmp/xguard-firewall.service"
+  }
+
+  provisioner "file" {
+    source      = "files/99-wireguard-tuning.conf"
+    destination = "/tmp/99-wireguard-tuning.conf"
+  }
+
+  provisioner "file" {
+    source      = "files/xguard-modules.conf"
+    destination = "/tmp/xguard-modules.conf"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo bash /tmp/docker-setup.sh",
+      "sudo mkdir -p /opt/stacks/xguard/init",
+      "sudo mv /tmp/docker-compose.template.yaml /opt/stacks/xguard/init/docker-compose.template.yaml",
+      "sudo mv /tmp/lib.sh /opt/stacks/xguard/init/lib.sh",
+      "sudo mv /tmp/generate-env.sh /opt/stacks/xguard/init/generate-env.sh",
+      "sudo mv /tmp/generate-compose.sh /opt/stacks/xguard/init/generate-compose.sh",
+      "sudo chmod +x /opt/stacks/xguard/init/generate-env.sh /opt/stacks/xguard/init/generate-compose.sh",
+      "echo 'XGUARD_CORE_TAG=${var.core_tag}' | sudo tee /opt/stacks/xguard/init/.image-tags > /dev/null",
+      "echo 'XGUARD_PROXY_TAG=${var.proxy_tag}' | sudo tee -a /opt/stacks/xguard/init/.image-tags > /dev/null",
+      "echo 'XGUARD_GATEWAY_TAG=${var.gateway_tag}' | sudo tee -a /opt/stacks/xguard/init/.image-tags > /dev/null",
+      "sudo mv /tmp/99-xguard.cfg /etc/cloud/cloud.cfg.d/99-xguard.cfg",
+      "sudo mv /tmp/xguard-init.service /etc/systemd/system/xguard-init.service",
+      "sudo mkdir -p /opt/xguard/backups",
+      "sudo install -m 750 -o root -g root /tmp/dg-ctl /opt/xguard/dg-ctl",
+      "sudo install -m 750 -o root -g root /tmp/install-dg-ctl.sh /opt/xguard/install-dg-ctl.sh",
+      "sudo ln -sf /opt/xguard/dg-ctl /usr/local/bin/dg-ctl",
+      "jq -n --arg v \"$(jq -r .ova_version /tmp/manifest.json)\" --arg ref \"$(jq -r .template_ref /tmp/manifest.json)\" --arg core '${var.core_tag}' --arg proxy '${var.proxy_tag}' --arg gateway '${var.gateway_tag}' '{ova_version: $v, template_ref: $ref, tags: {core: $core, proxy: $proxy, gateway: $gateway}}' | sudo tee /opt/xguard/state.json > /dev/null",
+      "sudo chmod 600 /opt/xguard/state.json",
+      "rm -f /tmp/manifest.json",
+      "sudo mv /tmp/xguard-firewall.sh /opt/stacks/xguard/xguard-firewall.sh",
+      "sudo chmod +x /opt/stacks/xguard/xguard-firewall.sh",
+      "sudo mv /tmp/xguard-firewall.service /etc/systemd/system/xguard-firewall.service",
+      "sudo mv /tmp/99-wireguard-tuning.conf /etc/sysctl.d/99-wireguard-tuning.conf",
+      "sudo chown root:root /etc/sysctl.d/99-wireguard-tuning.conf",
+      "sudo mv /tmp/xguard-modules.conf /etc/modules-load.d/xguard.conf",
+      "sudo chown root:root /etc/modules-load.d/xguard.conf",
+      "sudo systemctl daemon-reload",
+      "sudo systemctl enable docker.service",
+      "sudo systemctl enable xguard-init.service",
+      "sudo systemctl enable xguard-firewall.service",
+      "sudo chown -R ubuntu:ubuntu /opt/stacks/xguard",
+      "sudo chown -R root:root /opt/stacks/xguard/init",
+      "sudo chmod -R go-w /opt/stacks/xguard/init",
+      "sudo rm -f /etc/netplan/00-installer-config.yaml /etc/netplan/50-cloud-init.yaml",
+      "sudo cloud-init clean --logs",
+      "sudo rm -f /etc/ssh/ssh_host_*",
+      "sudo rm -f /root/.ssh/authorized_keys",
+      "sudo rm -f /home/ubuntu/.ssh/authorized_keys",
+      "sudo truncate -s 0 /home/ubuntu/.bash_history || true",
+      "sudo truncate -s 0 /root/.bash_history || true",
+      # Expire default password so it must be changed on first login
+      "sudo chage -d 0 ubuntu"
+    ]
+  }
+
+  post-processor "shell-local" {
+    inline = [
+      "qemu-img convert -f qcow2 -O vmdk output/${var.vm_name}/${var.vm_name} output/${var.vm_name}/${var.vm_name}.vmdk",
+      "cp files/ubuntu.vmx output/${var.vm_name}/${var.vm_name}.vmx",
+      "ovftool --lax --diskMode=thin output/${var.vm_name}/${var.vm_name}.vmx output/${var.vm_name}/${var.vm_name}.ova"
+    ]
+  }
+}

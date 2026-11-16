@@ -1,10 +1,10 @@
-# Defguard load-testing stack
+# XGuard load-testing stack
 
-This Terraform example creates an isolated AWS environment for reproducing the load tests described in [Performance and deployment sizing](https://docs.defguard.net/2.2/in-depth/performance-and-deployment-sizing). It is for load testing, not production. The linked page contains the benchmark results, tested hardware, and methodology; this guide covers deploying and removing the test environment.
+This Terraform example creates an isolated AWS environment for reproducing the load tests described in [Performance and deployment sizing](https://docs.xguard.local/2.2/in-depth/performance-and-deployment-sizing). It is for load testing, not production. The linked page contains the benchmark results, tested hardware, and methodology; this guide covers deploying and removing the test environment.
 
 ## What it creates
 
-The stack creates a dedicated VPC with public and private subnets, a NAT gateway, and instances for Defguard Core, Edge, Gateway, PostgreSQL, OpenLDAP, a load generator, and Prometheus/Grafana. Core and the databases are private. Edge, Gateway, and the load generator have public addresses; security groups control access.
+The stack creates a dedicated VPC with public and private subnets, a NAT gateway, and instances for XGuard Core, Edge, Gateway, PostgreSQL, OpenLDAP, a load generator, and Prometheus/Grafana. Core and the databases are private. Edge, Gateway, and the load generator have public addresses; security groups control access.
 
 ## Requirements
 
@@ -53,27 +53,27 @@ Review the plan before applying. To remove the stack, review and run `tofu plan 
 
 After deployment, Terraform prints the component addresses. Core is private. Follow the first-access notes at the bottom of `main.tf.example` to reach its web UI, complete setup, set the WireGuard location endpoint to the Gateway public address, and configure the enrollment URL to use Edge.
 
-Use the load-generator instance to run scenarios. The commands below assume the repository is cloned at `/home/ubuntu/defguard`, as configured by cloud-init. Replace the example values with the PostgreSQL private address and location ID from Terraform/Core, plus the credentials configured in your private `main.tf`:
+Use the load-generator instance to run scenarios. The commands below assume the repository is cloned at `/home/ubuntu/xguard`, as configured by cloud-init. Replace the example values with the PostgreSQL private address and location ID from Terraform/Core, plus the credentials configured in your private `main.tf`:
 
 ```sh
-export DEFGUARD_DB_HOST="POSTGRES_PRIVATE_IP" DEFGUARD_DB_NAME=defguard DEFGUARD_DB_USER=defguard DEFGUARD_DB_PASSWORD="REPLACE_WITH_DB_PASSWORD"
+export XGUARD_DB_HOST="POSTGRES_PRIVATE_IP" XGUARD_DB_NAME=xguard XGUARD_DB_USER=xguard XGUARD_DB_PASSWORD="REPLACE_WITH_DB_PASSWORD"
 export NETWORK_ID="LOCATION_ID" EDGE_URL="https://EDGE_PUBLIC_IP"
 ```
 
 Seed users and devices for polling once, then run a five-minute polling test at 100 requests per second. The auto-created WireGuard location uses a small default subnet, so keep the seed count within its available address space:
 
 ```sh
-cd /home/ubuntu/defguard && cargo run --release --manifest-path tools/defguard_load_generator/Cargo.toml -- seed --users 100 --network-id "$NETWORK_ID"
-cd /home/ubuntu/defguard && cargo run --release --manifest-path tools/defguard_load_generator/Cargo.toml -- test config-polling --proxy-url "$EDGE_URL" --network-id "$NETWORK_ID" --requests-per-second 100 --duration 5m
+cd /home/ubuntu/xguard && cargo run --release --manifest-path tools/xguard_load_generator/Cargo.toml -- seed --users 100 --network-id "$NETWORK_ID"
+cd /home/ubuntu/xguard && cargo run --release --manifest-path tools/xguard_load_generator/Cargo.toml -- test config-polling --proxy-url "$EDGE_URL" --network-id "$NETWORK_ID" --requests-per-second 100 --duration 5m
 ```
 
 The seed command creates users with TOTP enabled and devices assigned to the selected location. For a separate MFA authorization test, use a location with internal MFA enabled:
 
 ```sh
-cd /home/ubuntu/defguard && cargo run --release --manifest-path tools/defguard_load_generator/Cargo.toml -- test client-mfa --proxy-url "$EDGE_URL" --network-id "$NETWORK_ID" --requests-per-second 20 --duration 5m
+cd /home/ubuntu/xguard && cargo run --release --manifest-path tools/xguard_load_generator/Cargo.toml -- test client-mfa --proxy-url "$EDGE_URL" --network-id "$NETWORK_ID" --requests-per-second 20 --duration 5m
 ```
 
-Start with conservative rates, confirm the scenario works, then increase load while watching the results. Run `cargo run --release --manifest-path tools/defguard_load_generator/Cargo.toml -- test --help` for current options. Open Grafana through an approved path into the VPC, such as an SSH tunnel when SSH is enabled. The monitoring host is private.
+Start with conservative rates, confirm the scenario works, then increase load while watching the results. Run `cargo run --release --manifest-path tools/xguard_load_generator/Cargo.toml -- test --help` for current options. Open Grafana through an approved path into the VPC, such as an SSH tunnel when SSH is enabled. The monitoring host is private.
 
 For comparable results, record the tested image versions, instance types, generator options, and run duration. Use the performance and sizing page for the benchmark methodology and interpretation of results.
 

@@ -1,16 +1,16 @@
 services:
   core:
-    image: ghcr.io/defguard/defguard:2
+    image: ghcr.io/sajjad-alaa/xguard-core:2
     environment:
-      DEFGUARD_COOKIE_INSECURE: "true"
-      DEFGUARD_DB_HOST: db
-      DEFGUARD_DB_PORT: 5432
-      DEFGUARD_DB_USER: defguard
-      DEFGUARD_DB_PASSWORD: defguard
-      DEFGUARD_DB_NAME: defguard
-      DEFGUARD_ADOPT_EDGE: "edge1:50051"
-      DEFGUARD_ADOPT_GATEWAY: "gateway1:50066"
-      DEFGUARD_LOG_LEVEL: debug
+      XGUARD_COOKIE_INSECURE: "true"
+      XGUARD_DB_HOST: db
+      XGUARD_DB_PORT: 5432
+      XGUARD_DB_USER: xguard
+      XGUARD_DB_PASSWORD: xguard
+      XGUARD_DB_NAME: xguard
+      XGUARD_ADOPT_EDGE: "edge1:50051"
+      XGUARD_ADOPT_GATEWAY: "gateway1:50066"
+      XGUARD_LOG_LEVEL: debug
     depends_on:
       - db
       - gateway1
@@ -21,9 +21,9 @@ services:
       - default
 
   edge1:
-    image: ghcr.io/defguard/defguard-proxy:2
+    image: ghcr.io/sajjad-alaa/xguard-proxy:2
     volumes:
-      - ./.volumes/certs2.0/edge1:/etc/defguard/certs
+      - ./.volumes/certs2.0/edge1:/etc/xguard/certs
     ports:
       - "8080:8080"
       - "80:80"
@@ -32,15 +32,15 @@ services:
       - default
 
   gateway1:
-    image: ghcr.io/defguard/gateway:2
+    image: ghcr.io/sajjad-alaa/xguard-gateway:2
     cap_add:
       - NET_ADMIN
     volumes:
-      - ./.volumes/certs2.0/gateway1:/etc/defguard/certs
+      - ./.volumes/certs2.0/gateway1:/etc/xguard/certs
     ports:
       - "51820:51820/udp"
     environment:
-      DEFGUARD_STATS_PERIOD: 10
+      XGUARD_STATS_PERIOD: 10
       HEALTH_PORT: 55003
     networks:
       default:
@@ -50,9 +50,9 @@ services:
   db:
     image: postgres:18-alpine
     environment:
-      POSTGRES_DB: defguard
-      POSTGRES_USER: defguard
-      POSTGRES_PASSWORD: defguard
+      POSTGRES_DB: xguard
+      POSTGRES_USER: xguard
+      POSTGRES_PASSWORD: xguard
     volumes:
       - ./.volumes/db2.0:/var/lib/postgresql
     ports:

@@ -21,38 +21,38 @@ variable "db_details" {
 }
 
 variable "core_url" {
-  description = "URL of the Defguard instance"
+  description = "URL of the XGuard instance"
   type        = string
 }
 
 variable "proxy_address" {
-  description = "The IP address of the Defguard Proxy instance"
+  description = "The IP address of the XGuard Proxy instance"
   type        = string
 }
 
 variable "proxy_grpc_port" {
-  description = "Port to be used to communicate with Defguard Proxy"
+  description = "Port to be used to communicate with XGuard Proxy"
   type        = string
 }
 
 variable "proxy_url" {
-  description = "The URL of the Defguard Proxy instance where enrollment is performed"
+  description = "The URL of the XGuard Proxy instance where enrollment is performed"
   type        = string
 }
 
 variable "grpc_port" {
-  description = "Port to be used to communicate with Defguard Core"
+  description = "Port to be used to communicate with XGuard Core"
   type        = number
 }
 
 variable "http_port" {
-  description = "Port to be used to access Defguard Core via HTTP"
+  description = "Port to be used to access XGuard Core via HTTP"
   type        = number
   default     = 8000
 }
 
 variable "gateway_secret" {
-  description = "Secret for the Defguard Gateway"
+  description = "Secret for the XGuard Gateway"
   type        = string
 }
 
@@ -73,28 +73,28 @@ variable "vpn_networks" {
 }
 
 variable "package_version" {
-  description = "Version of the Defguard Core package to be installed"
+  description = "Version of the XGuard Core package to be installed"
   type        = string
 }
 
 variable "arch" {
-  description = "Architecture of the Defguard Core package to be installed"
+  description = "Architecture of the XGuard Core package to be installed"
   type        = string
 }
 
 variable "default_admin_password" {
-  description = "Default admin password for the Defguard Core"
+  description = "Default admin password for the XGuard Core"
   type        = string
   default     = "pass123"
 }
 
 variable "cookie_insecure" {
-  description = "Whether to use insecure cookies for the Defguard Core"
+  description = "Whether to use insecure cookies for the XGuard Core"
   type        = bool
 }
 
 variable "log_level" {
-  description = "Log level for Defguard Core. Possible values: trace, debug, info, warn, error"
+  description = "Log level for XGuard Core. Possible values: trace, debug, info, warn, error"
   type        = string
   default     = "info"
 }

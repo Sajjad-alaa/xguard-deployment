@@ -1,0 +1,74 @@
+---
+# yaml-language-server: $schema=values.schema.json
+# xguard-proxy is turned off by default. enable to allow use of the enrollment interface
+enabled: false
+# this should be a URL based on xguard-proxy.ingress.web.host
+publicUrl: "http://enrollment.local"
+# xguard-proxy full name override
+fullnameOverride: ""
+# xguard-proxy name override
+nameOverride: ""
+# xguard-proxy container image configuration
+image:
+  pullPolicy: IfNotPresent
+  repository: ghcr.io/sajjad-alaa/xguard-proxy
+  tag: "" # overrides .Chart.AppVersion
+# xguard-proxy container image pull secrets configuration
+imagePullSecrets: []
+# xguard-proxy ingress configuration
+ingress:
+  grpc:
+    annotations: {}
+    className: ""
+    enabled: true
+    host: enrollment-grpc.local
+    labels: {}
+    tls: false
+  web:
+    annotations: {}
+    className: ""
+    enabled: true
+    host: enrollment.local
+    labels: {}
+    tls: false
+# xguard-proxy pod affinity
+affinity: {}
+# xguard-proxy pod node selection
+nodeSelector: {}
+# xguard-proxy pod tolerations
+tolerations: []
+# xguard-proxy pod annotations
+podAnnotations: {}
+# xguard-proxy pod labels
+podLabels: {}
+# xguard-proxy pod security context
+podSecurityContext: {}
+# xguard-proxy container security context
+securityContext: {}
+# xguard-proxy container replica count
+replicaCount: 1
+# xguard-proxy pod resource configuration
+resources: {}
+# xguard-proxy persistent storage configuration
+persistence:
+  size: "32Mi"
+  storageClassName: ""
+# xguard-proxy service configuration
+service:
+  grpc:
+    annotations:
+      traefik.ingress.kubernetes.io/service.serversscheme: h2c
+    labels: {}
+    port: 50051
+    type: ClusterIP
+  web:
+    annotations: {}
+    labels: {}
+    port: 8080
+    type: ClusterIP
+# xguard-proxy service account configuration
+serviceAccount:
+  annotations: {}
+  create: true
+# xguard-proxy additional ENV from configmap
+additionalEnvFromConfigMap: ""

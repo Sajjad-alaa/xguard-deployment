@@ -1,4 +1,4 @@
-resource "aws_instance" "defguard_proxy" {
+resource "aws_instance" "xguard_proxy" {
   ami           = var.ami
   instance_type = var.instance_type
 
@@ -17,6 +17,6 @@ resource "aws_instance" "defguard_proxy" {
   }
 
   tags = {
-    Name = "defguard-proxy-instance"
+    Name = "xguard-proxy-instance"
   }
 }

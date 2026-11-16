@@ -22,13 +22,13 @@ variable "db_details" {
 }
 
 variable "grpc_port" {
-  description = "Port the Defguard Core gRPC server listens on"
+  description = "Port the XGuard Core gRPC server listens on"
   type        = number
   default     = 50055
 }
 
 variable "http_port" {
-  description = "Port to be used to access Defguard Core via HTTP"
+  description = "Port to be used to access XGuard Core via HTTP"
   type        = number
   default     = 8000
 }
@@ -39,7 +39,7 @@ variable "gateway_address" {
 }
 
 variable "gateway_grpc_port" {
-  description = "Port the Defguard Gateway gRPC server listens on"
+  description = "Port the XGuard Gateway gRPC server listens on"
   type        = number
   default     = 50066
 }
@@ -50,7 +50,7 @@ variable "edge_address" {
 }
 
 variable "edge_grpc_port" {
-  description = "Port the Defguard Edge gRPC server listens on"
+  description = "Port the XGuard Edge gRPC server listens on"
   type        = number
   default     = 50051
 }
@@ -61,18 +61,18 @@ variable "network_interface_id" {
 }
 
 variable "package_version" {
-  description = "Version of the Defguard Core package to install (e.g. \"2.0.1\"). Leave empty to install the latest version available in the APT repository."
+  description = "Version of the XGuard Core package to install (e.g. \"2.0.1\"). Leave empty to install the latest version available in the APT repository."
   type        = string
   default     = ""
 }
 
 variable "cookie_insecure" {
-  description = "Whether to use insecure cookies for the Defguard Core"
+  description = "Whether to use insecure cookies for the XGuard Core"
   type        = bool
 }
 
 variable "log_level" {
-  description = "Log level for Defguard Core. Possible values: trace, debug, info, warn, error"
+  description = "Log level for XGuard Core. Possible values: trace, debug, info, warn, error"
   type        = string
   default     = "info"
 }

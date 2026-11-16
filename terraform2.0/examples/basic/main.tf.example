@@ -1,4 +1,4 @@
-# Deploy Defguard 2.0 into a NEW, self-contained VPC.
+# Deploy XGuard 2.0 into a NEW, self-contained VPC.
 #
 # This example creates everything from scratch: a VPC with public/private subnets and a NAT
 # gateway, the security groups, network interfaces, EIPs and the RDS database (via the shared
@@ -11,7 +11,7 @@
 locals {
   ############################ AWS configuration ############################
 
-  # The AWS region where the Defguard infrastructure will be deployed.
+  # The AWS region where the XGuard infrastructure will be deployed.
   region = "us-east-1"
 
   ############################ SSH / access configuration ###################
@@ -26,52 +26,52 @@ locals {
 
   ############################ Core configuration ###########################
 
-  # The gRPC port for the Defguard Core.
+  # The gRPC port for the XGuard Core.
   core_grpc_port = 50055
 
-  # The HTTP(S) port for the Defguard Core web UI.
+  # The HTTP(S) port for the XGuard Core web UI.
   core_http_port = 8000
 
-  # Whether to allow insecure cookies for the Defguard Core web UI. Set to true if you
-  # are using HTTP to access the Defguard Core web UI.
+  # Whether to allow insecure cookies for the XGuard Core web UI. Set to true if you
+  # are using HTTP to access the XGuard Core web UI.
   core_cookie_insecure = false
 
-  # Pin the Defguard Core deb package version (e.g. "2.0.1"). Leave empty ("") to install the
-  # latest version available in the Defguard APT repository.
+  # Pin the XGuard Core deb package version (e.g. "2.0.1"). Leave empty ("") to install the
+  # latest version available in the XGuard APT repository.
   core_package_version = ""
 
-  # The architecture of the Defguard Core server instance.
+  # The architecture of the XGuard Core server instance.
   # Supported values: "x86_64", "aarch64"
   core_arch = "x86_64"
 
-  # The instance type for the Defguard Core server.
+  # The instance type for the XGuard Core server.
   core_instance_type = "t3.micro"
 
   ############################ Edge configuration ###########################
 
-  # The gRPC port the Defguard Edge listens on. Core dials this to adopt and manage the edge.
+  # The gRPC port the XGuard Edge listens on. Core dials this to adopt and manage the edge.
   edge_grpc_port = 50051
 
-  # The HTTP port the Defguard Edge listens on for enrollment and client communication.
+  # The HTTP port the XGuard Edge listens on for enrollment and client communication.
   edge_http_port = 8080
 
-  # The HTTPS port the Defguard Edge listens on (used after Core provisions TLS).
+  # The HTTPS port the XGuard Edge listens on (used after Core provisions TLS).
   edge_https_port = 443
 
   # Pin the edge deb package version (e.g. "2.0.1"). Leave empty ("") to install the
-  # latest version available in the Defguard APT repository.
+  # latest version available in the XGuard APT repository.
   edge_package_version = ""
 
-  # The architecture of the Defguard Edge server instance.
+  # The architecture of the XGuard Edge server instance.
   # Supported values: "x86_64", "aarch64"
   edge_arch = "x86_64"
 
-  # The instance type for the Defguard Edge server.
+  # The instance type for the XGuard Edge server.
   edge_instance_type = "t3.micro"
 
   ###################### VPN and Gateway configuration ######################
 
-  # The gRPC port the Defguard Gateway listens on. Core dials this to adopt and manage
+  # The gRPC port the XGuard Gateway listens on. Core dials this to adopt and manage
   # the gateway (initial adoption and the ongoing control stream).
   gateway_grpc_port = 50066
 
@@ -84,14 +84,14 @@ locals {
   gateway_nat = true
 
   # Pin the gateway deb package version (e.g. "2.0.1"). Leave empty ("") to install the
-  # latest version available in the Defguard APT repository.
+  # latest version available in the XGuard APT repository.
   gateway_package_version = ""
 
-  # The architecture of the Defguard Gateway server instance.
+  # The architecture of the XGuard Gateway server instance.
   # Supported values: "x86_64", "aarch64"
   gateway_arch = "x86_64"
 
-  # The instance type for the Defguard Gateway server.
+  # The instance type for the XGuard Gateway server.
   gateway_instance_type = "t3.micro"
 
   ########################## Database configuration #########################
@@ -100,17 +100,17 @@ locals {
   # (postgres<version>) is derived from this, so the two always match.
   db_engine_version = "18"
 
-  # The name of the database that will be created for the Defguard Core.
-  db_name = "defguard"
+  # The name of the database that will be created for the XGuard Core.
+  db_name = "xguard"
 
-  # The username for the database that will be created for the Defguard Core.
-  db_username = "defguard"
+  # The username for the database that will be created for the XGuard Core.
+  db_username = "xguard"
 
   # The port on which the database will listen for incoming connections.
   db_port = 5432
 
-  # The password for the database user. This will be used by the Defguard Core to connect to the database.
-  db_password = "defguard"
+  # The password for the database user. This will be used by the XGuard Core to connect to the database.
+  db_password = "xguard"
 
   # The amount of storage allocated for the database in GB. The minimum amount for this example required by AWS is 20 GB.
   db_storage = 20 # GB
@@ -120,15 +120,15 @@ locals {
 
   ############################ VPC configuration ############################
 
-  # The name of the VPC that will be created for the Defguard infrastructure.
-  vpc_name = "defguard-vpc"
+  # The name of the VPC that will be created for the XGuard infrastructure.
+  vpc_name = "xguard-vpc"
 
   # The CIDR block for the VPC. This defines the IP address range for the VPC and its subnets.
   # Deliberately off 10.0.0.0/16 so it does NOT overlap the default WireGuard location range
   # (10.0.0.1/24) that auto-adoption creates.
   vpc_cidr = "10.20.0.0/16"
 
-  # The tags to be applied to the Defguard VPC.
+  # The tags to be applied to the XGuard VPC.
   vpc_tags = {
     Name = local.vpc_name
   }
@@ -188,12 +188,12 @@ provider "aws" {
 }
 
 ###########################################################################
-########################## Defguard components ############################
+########################## XGuard components ############################
 ###########################################################################
 
-module "defguard_core" {
+module "xguard_core" {
   # source = "../../modules/core"
-  source          = "github.com/DefGuard/deployment//terraform2.0/modules/core?ref=main"
+  source          = "github.com/Sajjad-alaa/xguard-deployment//terraform2.0/modules/core?ref=main"
   instance_type   = local.core_instance_type
   package_version = local.core_package_version
   ami             = data.aws_ami.ubuntu[local.core_arch].id
@@ -215,14 +215,14 @@ module "defguard_core" {
 
   # Gateway and edge must be listening before Core's one-shot adoption runs.
   depends_on = [
-    module.defguard_gateway,
-    module.defguard_edge,
+    module.xguard_gateway,
+    module.xguard_edge,
   ]
 }
 
-module "defguard_edge" {
+module "xguard_edge" {
   # source = "../../modules/edge"
-  source = "github.com/DefGuard/deployment//terraform2.0/modules/edge?ref=main"
+  source = "github.com/Sajjad-alaa/xguard-deployment//terraform2.0/modules/edge?ref=main"
 
   instance_type   = local.edge_instance_type
   package_version = local.edge_package_version
@@ -236,9 +236,9 @@ module "defguard_edge" {
   network_interface_id = module.network.edge_network_interface_id
 }
 
-module "defguard_gateway" {
+module "xguard_gateway" {
   # source = "../../modules/gateway"
-  source = "github.com/DefGuard/deployment//terraform2.0/modules/gateway?ref=main"
+  source = "github.com/Sajjad-alaa/xguard-deployment//terraform2.0/modules/gateway?ref=main"
 
   ami             = data.aws_ami.ubuntu[local.gateway_arch].id
   instance_type   = local.gateway_instance_type
@@ -280,7 +280,7 @@ module "vpc" {
 # examples/existing-vpc, where the vpc_id and subnet IDs come from a customer's own VPC.
 module "network" {
   # source = "../../modules/network"
-  source = "github.com/DefGuard/deployment//terraform2.0/modules/network?ref=main"
+  source = "github.com/Sajjad-alaa/xguard-deployment//terraform2.0/modules/network?ref=main"
 
   vpc_id           = module.vpc.vpc_id
   vpc_cidr         = local.vpc_cidr
@@ -311,36 +311,36 @@ module "network" {
 # First-access steps after apply:
 #   1. Core is private; reach its web UI and finish the setup wizard (2.0 has no admin-password
 #      env var). If you already have access to the private network (VPN, peering, bastion),
-#      open http://<defguard_core_private_address>:<core_http_port> directly. Otherwise enable
+#      open http://<xguard_core_private_address>:<core_http_port> directly. Otherwise enable
 #      SSH (set ssh_admin_cidr + ssh_key_name above) and tunnel through the gateway:
-#        ssh -L 8000:<defguard_core_private_address>:<core_http_port> ubuntu@<defguard_gateway_public_address>
+#        ssh -L 8000:<xguard_core_private_address>:<core_http_port> ubuntu@<xguard_gateway_public_address>
 #        open http://localhost:8000
-#   2. In Core, set the WireGuard location endpoint to defguard_gateway_public_address
+#   2. In Core, set the WireGuard location endpoint to xguard_gateway_public_address
 #      (adoption stores the gateway's private IP) so external clients can connect.
 #   3. In Core settings, set the enrollment URL to the edge public address; users enroll via
 #      the public Edge with an admin-generated token (no Core access needed).
 
-output "defguard_core_private_address" {
-  description = "IP address of Defguard Core instance in the internal network"
+output "xguard_core_private_address" {
+  description = "IP address of XGuard Core instance in the internal network"
   value       = module.network.core_private_ip
 }
 
-output "defguard_edge_public_address" {
-  description = "Public IP address of Defguard Edge instance"
+output "xguard_edge_public_address" {
+  description = "Public IP address of XGuard Edge instance"
   value       = module.network.edge_public_ip
 }
 
-output "defguard_edge_private_address" {
-  description = "Private IP address of Defguard Edge instance"
+output "xguard_edge_private_address" {
+  description = "Private IP address of XGuard Edge instance"
   value       = module.network.edge_private_ip
 }
 
-output "defguard_gateway_public_address" {
-  description = "Public IP address of Defguard Gateway instance"
+output "xguard_gateway_public_address" {
+  description = "Public IP address of XGuard Gateway instance"
   value       = module.network.gateway_public_ip
 }
 
-output "defguard_gateway_private_address" {
-  description = "Private IP address of Defguard Gateway instance"
+output "xguard_gateway_private_address" {
+  description = "Private IP address of XGuard Gateway instance"
   value       = module.network.gateway_private_ip
 }

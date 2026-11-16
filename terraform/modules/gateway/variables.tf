@@ -16,7 +16,7 @@ variable "gateway_port" {
 }
 
 variable "gateway_secret" {
-  description = "Secret key for the Defguard Gateway"
+  description = "Secret key for the XGuard Gateway"
   type        = string
 }
 
@@ -26,12 +26,12 @@ variable "network_id" {
 }
 
 variable "core_address" {
-  description = "Internal address of the Defguard instance"
+  description = "Internal address of the XGuard instance"
   type        = string
 }
 
 variable "core_grpc_port" {
-  description = "Port to be used to communicate with Defguard Core"
+  description = "Port to be used to communicate with XGuard Core"
   type        = number
 }
 
@@ -41,12 +41,12 @@ variable "network_interface_id" {
 }
 
 variable "package_version" {
-  description = "Version of the Defguard Gateway package to be installed"
+  description = "Version of the XGuard Gateway package to be installed"
   type        = string
 }
 
 variable "arch" {
-  description = "Architecture of the Defguard Gateway package to be installed"
+  description = "Architecture of the XGuard Gateway package to be installed"
   type        = string
 }
 
@@ -57,7 +57,7 @@ variable "nat" {
 }
 
 variable "log_level" {
-  description = "Log level for Defguard Gateway. Possible values: trace, debug, info, warn, error"
+  description = "Log level for XGuard Gateway. Possible values: trace, debug, info, warn, error"
   type        = string
   default     = "info"
 }

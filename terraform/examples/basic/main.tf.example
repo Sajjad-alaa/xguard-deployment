@@ -1,58 +1,58 @@
 locals {
   ############################ AWS configuration ############################
 
-  # The AWS region where the Defguard infrastructure will be deployed.
+  # The AWS region where the XGuard infrastructure will be deployed.
   region = "eu-north-1"
 
   ############################ Core configuration ###########################
 
-  # The URL for the Defguard Core. This is the URL under which the Defguard Core should be accessible.
-  core_url = "https://defguard.example.com"
+  # The URL for the XGuard Core. This is the URL under which the XGuard Core should be accessible.
+  core_url = "https://xguard.example.com"
 
-  # The gRPC port for the Defguard Core. This is the port that the core will use to communicate with Defguard Gateways.
+  # The gRPC port for the XGuard Core. This is the port that the core will use to communicate with XGuard Gateways.
   core_grpc_port = 50055
 
-  # The HTTP port for the Defguard Core web UI. This is the port that the core will listen on for incoming HTTP requests.
+  # The HTTP port for the XGuard Core web UI. This is the port that the core will listen on for incoming HTTP requests.
   core_http_port = 8000
 
-  # Whether to allow insecure cookies for the Defguard Core web UI. Set to true if you
-  # are using HTTP to access the Defguard Core web UI.
+  # Whether to allow insecure cookies for the XGuard Core web UI. Set to true if you
+  # are using HTTP to access the XGuard Core web UI.
   core_cookie_insecure = false
 
-  # The initial password for the "admin" user. Use it to login to the Defguard Core web UI for the first time.
+  # The initial password for the "admin" user. Use it to login to the XGuard Core web UI for the first time.
   default_admin_password = "pass123"
 
-  # The deb package version of the Defguard Core that will be installed on the instance.
-  # Must be a valid, released version of Defguard Core.
+  # The deb package version of the XGuard Core that will be installed on the instance.
+  # Must be a valid, released version of XGuard Core.
   core_package_version = "1.6.5"
 
-  # The architecture of the Defguard Core server instance.
+  # The architecture of the XGuard Core server instance.
   # Supported values: "x86_64", "aarch64"
   core_arch = "x86_64"
 
-  # The instance type for the Defguard Core server.
+  # The instance type for the XGuard Core server.
   core_instance_type = "t3.micro"
 
   ########################### Proxy configuration ###########################
 
-  # The URL for the Defguard Proxy. This is the URL under which the Defguard Proxy should be accessible.
+  # The URL for the XGuard Proxy. This is the URL under which the XGuard Proxy should be accessible.
   proxy_url = "https://proxy.example.com"
 
-  # The gRPC port for the Defguard Proxy. This is the port that the proxy will use to communicate with the Defguard Core.
+  # The gRPC port for the XGuard Proxy. This is the port that the proxy will use to communicate with the XGuard Core.
   proxy_grpc_port = 50051
 
-  # The HTTP port for the Defguard Proxy. This is the port that the proxy will listen on for incoming HTTP requests.
+  # The HTTP port for the XGuard Proxy. This is the port that the proxy will listen on for incoming HTTP requests.
   proxy_http_port = 8000
 
   # The deb package version of the proxy that will be installed on the instance.
-  # Must be a valid, released version of Defguard Proxy.
+  # Must be a valid, released version of XGuard Proxy.
   proxy_package_version = "1.6.3"
 
-  # The architecture of the Defguard Proxy server instance.
+  # The architecture of the XGuard Proxy server instance.
   # Supported values: "x86_64", "aarch64"
   proxy_arch = "x86_64"
 
-  # The instance type for the Defguard Proxy server.
+  # The instance type for the XGuard Proxy server.
   proxy_instance_type = "t3.micro"
 
   ###################### VPN and Gateway configuration ######################
@@ -76,29 +76,29 @@ locals {
   ]
 
   # The gateway deb package version that will be installed on the instance.
-  # Must be a valid, released version of Defguard Gateway.
+  # Must be a valid, released version of XGuard Gateway.
   gateway_package_version = "1.6.3"
 
-  # The architecture of the Defguard Gateway server instance.
+  # The architecture of the XGuard Gateway server instance.
   # Supported values: "x86_64", "aarch64"
   gateway_arch = "x86_64"
 
-  # The instance type for the Defguard Gateway server.
+  # The instance type for the XGuard Gateway server.
   gateway_instance_type = "t3.micro"
 
   ########################## Database configuration #########################
 
-  # The name of the database that will be created for the Defguard Core.
-  db_name = "defguard"
+  # The name of the database that will be created for the XGuard Core.
+  db_name = "xguard"
 
-  # The username for the database that will be created for the Defguard Core.
-  db_username = "defguard"
+  # The username for the database that will be created for the XGuard Core.
+  db_username = "xguard"
 
   # The port on which the database will listen for incoming connections.
   db_port = 5432
 
-  # The password for the database user. This will be used by the Defguard Core to connect to the database.
-  db_password = "defguard"
+  # The password for the database user. This will be used by the XGuard Core to connect to the database.
+  db_password = "xguard"
 
   # The amount of storage allocated for the database in GB. The minimum amount for this example required by AWS is 20 GB.
   db_storage = 20 # GB
@@ -108,13 +108,13 @@ locals {
 
   ############################ VPC configuration ############################
 
-  # The name of the VPC that will be created for the Defguard infrastructure.
-  vpc_name = "defguard-vpc"
+  # The name of the VPC that will be created for the XGuard infrastructure.
+  vpc_name = "xguard-vpc"
 
   # The CIDR block for the VPC. This defines the IP address range for the VPC and its subnets.
   vpc_cidr = "10.0.0.0/16"
 
-  # The tags to be applied to the Defguard VPC.
+  # The tags to be applied to the XGuard VPC.
   vpc_tags = {
     Name = local.vpc_name
   }
@@ -123,7 +123,7 @@ locals {
   # Note: 2 subnets are required for high availability of the database instance.
   vpc_private_subnets = ["10.0.2.0/24", "10.0.3.0/24"]
 
-  # The subnets for the VPC that will be used for the Defguard Core, proxy, and gateways.
+  # The subnets for the VPC that will be used for the XGuard Core, proxy, and gateways.
   vpc_public_subnets = ["10.0.1.0/24"]
 
   # The availability zones for the VPC. This is used mainly for the database instance to ensure high availability.
@@ -170,9 +170,9 @@ resource "random_password" "gateway_secret" {
   special = false
 }
 
-module "defguard_core" {
+module "xguard_core" {
   # source = "../../modules/core"
-  source          = "github.com/DefGuard/deployment//terraform/modules/core?ref=main"
+  source          = "github.com/Sajjad-alaa/xguard-deployment//terraform/modules/core?ref=main"
   instance_type   = local.core_instance_type
   package_version = local.core_package_version
   arch            = local.core_arch
@@ -189,24 +189,24 @@ module "defguard_core" {
     name     = network.name
     address  = network.address
     port     = network.port
-    endpoint = aws_eip.defguard_gateway_endpoint[network.id - 1].public_ip
+    endpoint = aws_eip.xguard_gateway_endpoint[network.id - 1].public_ip
   }]
   db_details = {
     name     = local.db_name
     username = local.db_username
     password = local.db_password
     port     = local.db_port
-    address  = aws_db_instance.defguard_core_db.address
+    address  = aws_db_instance.xguard_core_db.address
   }
-  proxy_address        = module.defguard_proxy.proxy_private_address
+  proxy_address        = module.xguard_proxy.proxy_private_address
   gateway_secret       = random_password.gateway_secret.result
-  network_interface_id = aws_network_interface.defguard_core_network_interface.id
+  network_interface_id = aws_network_interface.xguard_core_network_interface.id
   # log_level            = "info"
 }
 
-module "defguard_proxy" {
+module "xguard_proxy" {
   # source = "../../modules/proxy"
-  source = "github.com/DefGuard/deployment//terraform/modules/proxy?ref=main"
+  source = "github.com/Sajjad-alaa/xguard-deployment//terraform/modules/proxy?ref=main"
 
   instance_type   = local.proxy_instance_type
   package_version = local.proxy_package_version
@@ -217,13 +217,13 @@ module "defguard_proxy" {
   # log_level       = "info"
 
   ami                  = data.aws_ami.ubuntu.id
-  network_interface_id = aws_network_interface.defguard_proxy_network_interface.id
+  network_interface_id = aws_network_interface.xguard_proxy_network_interface.id
 }
 
-module "defguard_gateway" {
+module "xguard_gateway" {
   count = length(local.vpn_networks)
   # source = "../../modules/gateway"
-  source = "github.com/DefGuard/deployment//terraform/modules/gateway?ref=main"
+  source = "github.com/Sajjad-alaa/xguard-deployment//terraform/modules/gateway?ref=main"
 
   ami             = data.aws_ami.ubuntu.id
   instance_type   = local.gateway_instance_type
@@ -234,11 +234,11 @@ module "defguard_gateway" {
   nat                  = local.vpn_networks[count.index].nat
   network_id           = local.vpn_networks[count.index].id
   gateway_secret       = random_password.gateway_secret.result
-  network_interface_id = aws_network_interface.defguard_gateway_network_interface[count.index].id
-  core_address         = aws_network_interface.defguard_core_network_interface.private_ip
+  network_interface_id = aws_network_interface.xguard_gateway_network_interface[count.index].id
+  core_address         = aws_network_interface.xguard_core_network_interface.private_ip
   # log_level            = "info"
 
-  depends_on = [module.defguard_core]
+  depends_on = [module.xguard_core]
 }
 
 module "vpc" {
@@ -258,7 +258,7 @@ module "vpc" {
 ####################### Core database configuration #######################
 ###########################################################################
 
-resource "aws_db_instance" "defguard_core_db" {
+resource "aws_db_instance" "xguard_core_db" {
   engine                 = "postgres"
   instance_class         = local.db_instance_class
   username               = local.db_username
@@ -267,13 +267,13 @@ resource "aws_db_instance" "defguard_core_db" {
   port                   = local.db_port
   skip_final_snapshot    = true
   allocated_storage      = local.db_storage
-  db_subnet_group_name   = aws_db_subnet_group.defguard.name
-  vpc_security_group_ids = [aws_security_group.defguard_db_sg.id]
-  parameter_group_name   = aws_db_parameter_group.defguard_db_parameter_group.name
+  db_subnet_group_name   = aws_db_subnet_group.xguard.name
+  vpc_security_group_ids = [aws_security_group.xguard_db_sg.id]
+  parameter_group_name   = aws_db_parameter_group.xguard_db_parameter_group.name
 }
 
-resource "aws_db_parameter_group" "defguard_db_parameter_group" {
-  name   = "defguard-db-parameter-group"
+resource "aws_db_parameter_group" "xguard_db_parameter_group" {
+  name   = "xguard-db-parameter-group"
   family = "postgres17"
 
   parameter {
@@ -282,8 +282,8 @@ resource "aws_db_parameter_group" "defguard_db_parameter_group" {
   }
 }
 
-resource "aws_db_subnet_group" "defguard" {
-  name       = "defguard-db-subnet-group"
+resource "aws_db_subnet_group" "xguard" {
+  name       = "xguard-db-subnet-group"
   subnet_ids = module.vpc.private_subnets
 }
 
@@ -291,26 +291,26 @@ resource "aws_db_subnet_group" "defguard" {
 ######################## Core network configuration #######################
 ###########################################################################
 
-# Public IP address for the Defguard Core instance
+# Public IP address for the XGuard Core instance
 # Remove this if you want to use a private IP only
-# or you are running Defguard behind a reverse proxy.
-resource "aws_eip" "defguard_core_endpoint" {
+# or you are running XGuard behind a reverse proxy.
+resource "aws_eip" "xguard_core_endpoint" {
   domain = "vpc"
 }
 
-resource "aws_eip_association" "defguard_core_endpoint_association" {
-  network_interface_id = aws_network_interface.defguard_core_network_interface.id
-  allocation_id        = aws_eip.defguard_core_endpoint.id
+resource "aws_eip_association" "xguard_core_endpoint_association" {
+  network_interface_id = aws_network_interface.xguard_core_network_interface.id
+  allocation_id        = aws_eip.xguard_core_endpoint.id
 }
 
-resource "aws_security_group" "defguard_core_sg" {
-  name        = "defguard-core-sg"
+resource "aws_security_group" "xguard_core_sg" {
+  name        = "xguard-core-sg"
   description = "Core access"
   vpc_id      = module.vpc.vpc_id
 
   ########################### General access rules ##########################
 
-  # (optional) SSH access to the Defguard Core server instance
+  # (optional) SSH access to the XGuard Core server instance
   # ingress {
   #   from_port   = 22
   #   to_port     = 22
@@ -318,7 +318,7 @@ resource "aws_security_group" "defguard_core_sg" {
   #   cidr_blocks = ["0.0.0.0/0"]
   # }
 
-  # HTTP access to the Defguard Core web UI from connected VPN clients
+  # HTTP access to the XGuard Core web UI from connected VPN clients
   # Remove this rule if you want to run core only behind a reverse proxy
   # Note that the core access should be limited to the VPN clients and internal networks only.
   ingress {
@@ -326,7 +326,7 @@ resource "aws_security_group" "defguard_core_sg" {
     to_port   = local.core_http_port
     protocol  = "tcp"
     cidr_blocks = [
-      for eip in aws_eip.defguard_gateway_endpoint : "${eip.public_ip}/32"
+      for eip in aws_eip.xguard_gateway_endpoint : "${eip.public_ip}/32"
     ]
   }
 
@@ -338,15 +338,15 @@ resource "aws_security_group" "defguard_core_sg" {
   #   security_groups = [ <your reverse proxy security group ID> ]
   # }
 
-  ########## Security group rules essential for Defguard operation ##########
+  ########## Security group rules essential for XGuard operation ##########
 
-  # gRPC communication with Defguard Gateways
+  # gRPC communication with XGuard Gateways
   ingress {
     from_port = local.core_grpc_port
     to_port   = local.core_grpc_port
     protocol  = "tcp"
     security_groups = [
-      for sg in aws_security_group.defguard_gateway_sg : sg.id
+      for sg in aws_security_group.xguard_gateway_sg : sg.id
     ]
   }
 
@@ -359,12 +359,12 @@ resource "aws_security_group" "defguard_core_sg" {
   }
 }
 
-resource "aws_network_interface" "defguard_core_network_interface" {
+resource "aws_network_interface" "xguard_core_network_interface" {
   subnet_id       = module.vpc.public_subnets[0]
-  security_groups = [aws_security_group.defguard_core_sg.id]
+  security_groups = [aws_security_group.xguard_core_sg.id]
 
   tags = {
-    Name = "defguard-core-network-interface"
+    Name = "xguard-core-network-interface"
   }
 }
 
@@ -372,29 +372,29 @@ resource "aws_network_interface" "defguard_core_network_interface" {
 ###################### Gateway network configuration ######################
 ###########################################################################
 
-# Public IP addresses for the Defguard Gateway instances
+# Public IP addresses for the XGuard Gateway instances
 # Gateways must be accessible externally to allow VPN clients to connect.
 
-resource "aws_eip" "defguard_gateway_endpoint" {
+resource "aws_eip" "xguard_gateway_endpoint" {
   count  = length(local.vpn_networks)
   domain = "vpc"
 }
 
-resource "aws_eip_association" "defguard_gateway_endpoint_association" {
+resource "aws_eip_association" "xguard_gateway_endpoint_association" {
   count                = length(local.vpn_networks)
-  network_interface_id = aws_network_interface.defguard_gateway_network_interface[count.index].id
-  allocation_id        = aws_eip.defguard_gateway_endpoint[count.index].id
+  network_interface_id = aws_network_interface.xguard_gateway_network_interface[count.index].id
+  allocation_id        = aws_eip.xguard_gateway_endpoint[count.index].id
 }
 
-resource "aws_security_group" "defguard_gateway_sg" {
+resource "aws_security_group" "xguard_gateway_sg" {
   count       = length(local.vpn_networks)
-  name        = "defguard-gateway-sg-${count.index}"
+  name        = "xguard-gateway-sg-${count.index}"
   description = "Gateway access"
   vpc_id      = module.vpc.vpc_id
 
   ########################### General access rules ##########################
 
-  # (optional) SSH access to the Defguard Gateway server instance
+  # (optional) SSH access to the XGuard Gateway server instance
   # ingress {
   #   from_port   = 22
   #   to_port     = 22
@@ -402,7 +402,7 @@ resource "aws_security_group" "defguard_gateway_sg" {
   #   cidr_blocks = ["0.0.0.0/0"]
   # }
 
-  ########## Security group rules essential for Defguard operation ##########
+  ########## Security group rules essential for XGuard operation ##########
 
   # VPN traffic coming from connected clients
   ingress {
@@ -421,13 +421,13 @@ resource "aws_security_group" "defguard_gateway_sg" {
   }
 }
 
-resource "aws_network_interface" "defguard_gateway_network_interface" {
+resource "aws_network_interface" "xguard_gateway_network_interface" {
   count           = length(local.vpn_networks)
   subnet_id       = module.vpc.public_subnets[0]
-  security_groups = [aws_security_group.defguard_gateway_sg[count.index].id]
+  security_groups = [aws_security_group.xguard_gateway_sg[count.index].id]
 
   tags = {
-    Name = "defguard-gateway-network-interface-${count.index}"
+    Name = "xguard-gateway-network-interface-${count.index}"
   }
 }
 
@@ -435,25 +435,25 @@ resource "aws_network_interface" "defguard_gateway_network_interface" {
 ####################### Proxy network configuration #######################
 ###########################################################################
 
-# Public IP address for the Defguard Proxy instance
+# Public IP address for the XGuard Proxy instance
 # Remove this if you want to run proxy behind a reverse proxy
-resource "aws_eip" "defguard_proxy_endpoint" {
+resource "aws_eip" "xguard_proxy_endpoint" {
   domain = "vpc"
 }
 
-resource "aws_eip_association" "defguard_proxy_endpoint_association" {
-  network_interface_id = aws_network_interface.defguard_proxy_network_interface.id
-  allocation_id        = aws_eip.defguard_proxy_endpoint.id
+resource "aws_eip_association" "xguard_proxy_endpoint_association" {
+  network_interface_id = aws_network_interface.xguard_proxy_network_interface.id
+  allocation_id        = aws_eip.xguard_proxy_endpoint.id
 }
 
-resource "aws_security_group" "defguard_proxy_sg" {
-  name        = "defguard-proxy-sg"
+resource "aws_security_group" "xguard_proxy_sg" {
+  name        = "xguard-proxy-sg"
   description = "Proxy access"
   vpc_id      = module.vpc.vpc_id
 
   ########################### General access rules ##########################
 
-  # (optional) SSH access to the Defguard Proxy server instance
+  # (optional) SSH access to the XGuard Proxy server instance
   # ingress {
   #   from_port   = 22
   #   to_port     = 22
@@ -461,9 +461,9 @@ resource "aws_security_group" "defguard_proxy_sg" {
   #   cidr_blocks = ["0.0.0.0/0"]
   # }
 
-  # HTTP access to the Defguard Proxy web UI from anywhere
+  # HTTP access to the XGuard Proxy web UI from anywhere
   # Remove this rule if you want to run proxy behind a reverse proxy
-  # Note that the proxy should be accessible externally to allow Defguard clients
+  # Note that the proxy should be accessible externally to allow XGuard clients
   # to communicate through it and to allow the enrollment of new users.
   ingress {
     from_port   = local.proxy_http_port
@@ -480,14 +480,14 @@ resource "aws_security_group" "defguard_proxy_sg" {
   #   security_groups = [ <your reverse proxy security group ID> ]
   # }
 
-  ########## Security group rules essential for Defguard operation ##########
+  ########## Security group rules essential for XGuard operation ##########
 
-  # Internal communication with Defguard Core
+  # Internal communication with XGuard Core
   ingress {
     from_port       = local.proxy_grpc_port
     to_port         = local.proxy_grpc_port
     protocol        = "tcp"
-    security_groups = [aws_security_group.defguard_core_sg.id]
+    security_groups = [aws_security_group.xguard_core_sg.id]
   }
 
   # General egress
@@ -499,12 +499,12 @@ resource "aws_security_group" "defguard_proxy_sg" {
   }
 }
 
-resource "aws_network_interface" "defguard_proxy_network_interface" {
+resource "aws_network_interface" "xguard_proxy_network_interface" {
   subnet_id       = module.vpc.public_subnets[0]
-  security_groups = [aws_security_group.defguard_proxy_sg.id]
+  security_groups = [aws_security_group.xguard_proxy_sg.id]
 
   tags = {
-    Name = "defguard-proxy-network-interface"
+    Name = "xguard-proxy-network-interface"
   }
 }
 
@@ -513,21 +513,21 @@ resource "aws_network_interface" "defguard_proxy_network_interface" {
 ###################### Database network configuration #####################
 ###########################################################################
 
-resource "aws_security_group" "defguard_db_sg" {
-  name        = "defguard-db-sg"
+resource "aws_security_group" "xguard_db_sg" {
+  name        = "xguard-db-sg"
   description = "Access to the database"
   vpc_id      = module.vpc.vpc_id
 
-  # Allows access to the database from the Defguard Core instance
+  # Allows access to the database from the XGuard Core instance
   ingress {
     from_port       = local.db_port
     to_port         = local.db_port
     protocol        = "tcp"
-    security_groups = [aws_security_group.defguard_core_sg.id]
+    security_groups = [aws_security_group.xguard_core_sg.id]
   }
 
   tags = {
-    Name = "defguard-db-sg"
+    Name = "xguard-db-sg"
   }
 }
 
@@ -535,32 +535,32 @@ resource "aws_security_group" "defguard_db_sg" {
 ################################# Outputs #################################
 ###########################################################################
 
-output "defguard_core_private_address" {
-  description = "IP address of Defguard Core instance in the internal network"
-  value       = aws_network_interface.defguard_core_network_interface.private_ip
+output "xguard_core_private_address" {
+  description = "IP address of XGuard Core instance in the internal network"
+  value       = aws_network_interface.xguard_core_network_interface.private_ip
 }
 
-output "defguard_core_public_address" {
-  description = "Public IP address of Defguard Core instance"
-  value       = aws_eip.defguard_core_endpoint.public_ip
+output "xguard_core_public_address" {
+  description = "Public IP address of XGuard Core instance"
+  value       = aws_eip.xguard_core_endpoint.public_ip
 }
 
-output "defguard_proxy_public_address" {
-  description = "Public IP address of Defguard Proxy instance"
-  value       = aws_eip.defguard_proxy_endpoint.public_ip
+output "xguard_proxy_public_address" {
+  description = "Public IP address of XGuard Proxy instance"
+  value       = aws_eip.xguard_proxy_endpoint.public_ip
 }
 
-output "defguard_proxy_private_address" {
-  description = "Private IP address of Defguard Proxy instance"
-  value       = aws_network_interface.defguard_proxy_network_interface.private_ip
+output "xguard_proxy_private_address" {
+  description = "Private IP address of XGuard Proxy instance"
+  value       = aws_network_interface.xguard_proxy_network_interface.private_ip
 }
 
-output "defguard_gateway_public_addresses" {
-  description = "Public IP addresses of Defguard Gateway instances"
-  value       = [for gw in aws_eip.defguard_gateway_endpoint : gw.public_ip]
+output "xguard_gateway_public_addresses" {
+  description = "Public IP addresses of XGuard Gateway instances"
+  value       = [for gw in aws_eip.xguard_gateway_endpoint : gw.public_ip]
 }
 
-output "defguard_gateway_private_addresses" {
-  description = "Private IP addresses of Defguard Gateway instances"
-  value       = [for gw in aws_network_interface.defguard_gateway_network_interface : gw.private_ip]
+output "xguard_gateway_private_addresses" {
+  description = "Private IP addresses of XGuard Gateway instances"
+  value       = [for gw in aws_network_interface.xguard_gateway_network_interface : gw.private_ip]
 }

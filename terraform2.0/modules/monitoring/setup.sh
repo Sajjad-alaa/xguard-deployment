@@ -54,26 +54,26 @@ datasources:
     editable: false
 DATASOURCE
 
-  cat >/etc/grafana/provisioning/dashboards/defguard.yml <<'DASHBOARD_PROVIDER'
+  cat >/etc/grafana/provisioning/dashboards/xguard.yml <<'DASHBOARD_PROVIDER'
 apiVersion: 1
 providers:
-  - name: Defguard monitoring
+  - name: XGuard monitoring
     orgId: 1
-    folder: Defguard
+    folder: XGuard
     type: file
     disableDeletion: true
     allowUiUpdates: false
     options:
-      path: /var/lib/grafana/dashboards/defguard
+      path: /var/lib/grafana/dashboards/xguard
 DASHBOARD_PROVIDER
 
-  install -d -o grafana -g grafana -m 0755 /var/lib/grafana/dashboards/defguard
+  install -d -o grafana -g grafana -m 0755 /var/lib/grafana/dashboards/xguard
 %{ for filename, content in dashboard_files ~}
-  cat >/var/lib/grafana/dashboards/defguard/${filename} <<'DASHBOARD_JSON'
+  cat >/var/lib/grafana/dashboards/xguard/${filename} <<'DASHBOARD_JSON'
 ${content}
 DASHBOARD_JSON
 %{ endfor ~}
-  chown -R grafana:grafana /var/lib/grafana/dashboards/defguard /etc/grafana/provisioning
+  chown -R grafana:grafana /var/lib/grafana/dashboards/xguard /etc/grafana/provisioning
 
   systemctl enable grafana-server
   systemctl restart grafana-server

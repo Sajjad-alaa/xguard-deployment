@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    {{- with .Values.service.web.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  name: {{ include "xguard-proxy.fullname" . }}-web
+  labels:
+    {{- include "xguard-proxy.labels" . | nindent 4 }}
+    {{- with .Values.service.web.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .Values.service.web.type }}
+  ports:
+    - port: {{ .Values.service.web.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "xguard-proxy.selectorLabels" . | nindent 4 }}

@@ -1,3 +1,3 @@
 output "instance_id" {
-  value = aws_instance.defguard_core.id
+  value = aws_instance.xguard_core.id
 }

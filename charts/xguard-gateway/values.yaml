@@ -1,0 +1,83 @@
+---
+# yaml-language-server: $schema=values.schema.json
+# xguard-gateway is turned off by default. enable to deploy the gateway
+enabled: false
+# Use userspace WireGuard implementation, useful on systems without native WireGuard support. Set to true/false
+userspace: "false"
+# Defines how often (in seconds) should interface statistics be sent to XGuard server
+statsPeriod: 30
+# rust log level, default is debug
+logLevel: "debug"
+# xguard-gateway full name override
+fullnameOverride: ""
+# xguard-gateway name override
+nameOverride: ""
+# xguard-gateway container image configuration
+image:
+  pullPolicy: IfNotPresent
+  repository: ghcr.io/sajjad-alaa/xguard-gateway
+  tag: "" # overrides .Chart.AppVersion
+# xguard-gateway container image pull secrets
+imagePullSecrets: []
+# xguard-gateway pod affinity configuration
+affinity: {}
+# xguard-gateway node selector configuration
+nodeSelector: {}
+# xguard-gateway pod tolerations
+tolerations: []
+# xguard-gateway pod annotations
+podAnnotations: {}
+# xguard-gateway pod labels
+podLabels: {}
+# xguard-gateway pod replica count
+replicaCount: 1
+# xguard-gateway pod resources
+resources: {}
+# xguard-gateway persistent storage for certificates
+persistence:
+  size: "32Mi"
+  storageClassName: ""
+# xguard-gateway pod security context
+podSecurityContext: {}
+# xguard-gateway container security context
+# elevated priveleges are required for managing network interfaces
+securityContext:
+  allowPrivilegeEscalation: true
+  privileged: true
+  capabilities:
+    add:
+      - NET_ADMIN
+      - SYS_MODULE
+# xguard-gateway pod additional ENV from configmap
+additionalEnvFromConfigMap: ""
+# xguard-gateway health check configuration
+healthCheck:
+  enabled: false
+  port: 35053
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+# xguard-gateway service configuration
+service:
+  grpc:
+    annotations:
+      traefik.ingress.kubernetes.io/service.serversscheme: h2c
+    labels: {}
+    port: 50066
+    type: ClusterIP
+  wireguard:
+    annotations: {}
+    labels: {}
+    port: 32140
+    type: ClusterIP
+# xguard-gateway serviceaccount configuration
+serviceAccount:
+  annotations: {}
+  create: true

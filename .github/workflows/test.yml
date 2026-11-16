@@ -23,21 +23,21 @@ jobs:
         run: mkdir temp
       - name: Run setup script
         env:
-          DEFGUARD_DOMAIN: "id.localhost"
-          DEFGUARD_ENROLLMENT_DOMAIN: "enrollment.localhost"
-          DEFGUARD_VPN_NAME: "test_location"
-          DEFGUARD_VPN_IP: "10.0.60.1/24"
-          DEFGUARD_VPN_GATEWAY_IP: "10.20.20.40"
-          DEFGUARD_VPN_GATEWAY_PORT: "50050"
+          XGUARD_DOMAIN: "id.localhost"
+          XGUARD_ENROLLMENT_DOMAIN: "enrollment.localhost"
+          XGUARD_VPN_NAME: "test_location"
+          XGUARD_VPN_IP: "10.0.60.1/24"
+          XGUARD_VPN_GATEWAY_IP: "10.20.20.40"
+          XGUARD_VPN_GATEWAY_PORT: "50050"
           CORE_IMAGE_TAG: latest
           PROXY_IMAGE_TAG: latest
           GATEWAY_IMAGE_TAG: latest
         working-directory: temp
-        run: curl --proto '=https' --tlsv1.2 -sSf -L https://raw.githubusercontent.com/DefGuard/deployment/main/docker-compose/setup.sh | bash -s - --non-interactive
+        run: curl --proto '=https' --tlsv1.2 -sSf -L https://raw.githubusercontent.com/Sajjad-alaa/xguard-deployment/main/docker-compose/setup.sh | bash -s - --non-interactive
       - name: Sleep for 10 seconds
         working-directory: temp
         run: sleep 10s
-      - name: Test Defguard is available
+      - name: Test XGuard is available
         working-directory: temp
         run: curl -f http://id.localhost/api/v1/health
       - name: Stop compose stack

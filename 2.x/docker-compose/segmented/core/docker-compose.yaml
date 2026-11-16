@@ -3,16 +3,16 @@ services:
     logging:
       driver: journald
       options:
-        tag: "defguard-core"
-    image: ghcr.io/defguard/defguard:2
+        tag: "xguard-core"
+    image: ghcr.io/sajjad-alaa/xguard-core:2
     environment:    
-      DEFGUARD_DB_HOST: db
-      DEFGUARD_DB_PORT: 5432
+      XGUARD_DB_HOST: db
+      XGUARD_DB_PORT: 5432
 
       # Make sure to change these credentials in production!
-      DEFGUARD_DB_USER: defguard
-      DEFGUARD_DB_PASSWORD: defguard
-      DEFGUARD_DB_NAME: defguard
+      XGUARD_DB_USER: xguard
+      XGUARD_DB_PASSWORD: xguard
+      XGUARD_DB_NAME: xguard
     depends_on:
       - db
     ports:
@@ -23,12 +23,12 @@ services:
     logging:
       driver: journald
       options:
-        tag: "defguard-db"
+        tag: "xguard-db"
     image: postgres:18-alpine
     environment:
       # Make sure to change these credentials in production!
-      POSTGRES_DB: defguard
-      POSTGRES_USER: defguard
-      POSTGRES_PASSWORD: defguard
+      POSTGRES_DB: xguard
+      POSTGRES_USER: xguard
+      POSTGRES_PASSWORD: xguard
     volumes:
       - ./.volumes/db:/var/lib/postgresql

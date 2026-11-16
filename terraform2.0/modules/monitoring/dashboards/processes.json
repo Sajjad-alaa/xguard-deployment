@@ -5,5 +5,5 @@
     {"type":"timeseries","title":"Process resident memory","gridPos":{"h":8,"w":12,"x":12,"y":0},"targets":[{"expr":"namedprocess_namegroup_memory_bytes{ memtype=\"resident\"}","legendFormat":"{{groupname}} / {{instance}}","refId":"A"}]},
     {"type":"timeseries","title":"Process states","gridPos":{"h":8,"w":24,"x":0,"y":8},"targets":[{"expr":"namedprocess_namegroup_states","legendFormat":"{{groupname}} {{state}} / {{instance}}","refId":"A"}]}
   ],
-  "schemaVersion":39,"tags":["defguard","processes"],"time":{"from":"now-1h","to":"now"},"title":"Defguard - Processes","uid":"defguard-processes","version":1
+  "schemaVersion":39,"tags":["xguard","processes"],"time":{"from":"now-1h","to":"now"},"title":"XGuard - Processes","uid":"xguard-processes","version":1
 }

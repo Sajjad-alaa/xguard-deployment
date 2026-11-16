@@ -3,12 +3,12 @@ services:
     logging:
       driver: journald
       options:
-        tag: "defguard-gateway"
-    image: ghcr.io/defguard/gateway:2
+        tag: "xguard-gateway"
+    image: ghcr.io/sajjad-alaa/xguard-gateway:2
     restart: unless-stopped
-    container_name: "defguard-gateway"
+    container_name: "xguard-gateway"
     network_mode: "host"
     cap_add:
       - NET_ADMIN
     volumes:
-      - ./.volumes/certs/gateway:/etc/defguard/certs
+      - ./.volumes/certs/gateway:/etc/xguard/certs

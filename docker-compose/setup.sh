@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
 
-# This is a script that sets up an entire Defguard instance (including core,
+# This is a script that sets up an entire XGuard instance (including core,
 # gateway, enrollment proxy and reverse proxy). It's goal is to prepare
 # a working instance by running a single command.
 
@@ -21,8 +21,8 @@ COMPOSE_FILE='docker-compose.yaml'
 ENV_FILE='.env'
 LOG_FILE=$(mktemp setup.log.XXXXXX)
 
-BASE_COMPOSE_FILE_URL='https://raw.githubusercontent.com/DefGuard/deployment/main/docker-compose/docker-compose.yaml'
-BASE_ENV_FILE_URL='https://raw.githubusercontent.com/DefGuard/deployment/main/docker-compose/.env.template'
+BASE_COMPOSE_FILE_URL='https://raw.githubusercontent.com/Sajjad-alaa/xguard-deployment/main/docker-compose/docker-compose.yaml'
+BASE_ENV_FILE_URL='https://raw.githubusercontent.com/Sajjad-alaa/xguard-deployment/main/docker-compose/.env.template'
 
 if [ "$(uname)" = 'Darwin' ]; then
 	SED=(sed -i '')
@@ -260,7 +260,7 @@ print_header() {
 _EOF_
 	echo -e "${C_END}"
 	echo
-	echo "Defguard docker-compose deployment setup script v${VERSION}"
+	echo "XGuard docker-compose deployment setup script v${VERSION}"
 	echo -e "Copyright ©2023-2025 ${C_BOLD}defguard sp. z o.o.${C_END} <${C_BG_GREY}${C_YELLOW}https://defguard.net/${C_END}>"
 	echo
 }
@@ -277,7 +277,7 @@ print_usage() {
 	echo
 	echo -e "\t--help                         this help message"
 	echo -e "\t--non-interactive              run in non-interactive mode - !REQUIRES SETTING all options/env vars"
-	echo -e "\t--domain <domain>              domain where Defguard web UI will be available"
+	echo -e "\t--domain <domain>              domain where XGuard web UI will be available"
 	echo -e "\t--enrollment-domain <domain>   domain where enrollment service will be available"
 	echo -e "\t--use-https                    configure reverse proxy to use HTTPS"
 	echo -e "\t--volume <directory>           Docker volumes directory - default: ${VOLUME_DIR}"
@@ -380,19 +380,19 @@ setup_docker_image_version() {
 load_configuration_from_env() {
 	echo -n " ${TXT_BEGIN} Loading configuration from environment variables... "
 	# required variables
-	CFG_DOMAIN="$DEFGUARD_DOMAIN"
+	CFG_DOMAIN="$XGUARD_DOMAIN"
 
 	# optional variables
-	CFG_VOLUME_DIR="$DEFGUARD_VOLUME_DIR"
-	CFG_VPN_NAME="$DEFGUARD_VPN_NAME"
-	CFG_VPN_IP="$DEFGUARD_VPN_IP"
-	CFG_VPN_GATEWAY_IP="$DEFGUARD_VPN_GATEWAY_IP"
-	CFG_VPN_GATEWAY_PORT="$DEFGUARD_VPN_GATEWAY_PORT"
-	CFG_ENROLLMENT_DOMAIN="$DEFGUARD_ENROLLMENT_DOMAIN"
-	CFG_PRE_RELEASE="$DEFGUARD_PRE_RELEASE"
-	CFG_DEV="$DEFGUARD_DEV"
+	CFG_VOLUME_DIR="$XGUARD_VOLUME_DIR"
+	CFG_VPN_NAME="$XGUARD_VPN_NAME"
+	CFG_VPN_IP="$XGUARD_VPN_IP"
+	CFG_VPN_GATEWAY_IP="$XGUARD_VPN_GATEWAY_IP"
+	CFG_VPN_GATEWAY_PORT="$XGUARD_VPN_GATEWAY_PORT"
+	CFG_ENROLLMENT_DOMAIN="$XGUARD_ENROLLMENT_DOMAIN"
+	CFG_PRE_RELEASE="$XGUARD_PRE_RELEASE"
+	CFG_DEV="$XGUARD_DEV"
 	if ! [ $CFG_USE_HTTPS ]; then
-		CFG_USE_HTTPS="$DEFGUARD_USE_HTTPS"
+		CFG_USE_HTTPS="$XGUARD_USE_HTTPS"
 	fi
 
 	print_confirmation
@@ -490,7 +490,7 @@ load_configuration_from_input() {
 	echo -ne "${C_ITALICS}${C_LBLUE}"
 	cat <<_EOF_
 
-Please provide the values to configure your Defguard instance. If you've
+Please provide the values to configure your XGuard instance. If you've
 already configured some options by setting environment variables or through
 CLI options, those will be used as defaults.
 
@@ -503,7 +503,7 @@ _EOF_
 	cat <<_EOF_
 
 Choose domains that will be used to expose your instance through Caddy
-reverse proxy. Defguard uses a separate domain for the Web UI, and for
+reverse proxy. XGuard uses a separate domain for the Web UI, and for
 the optional enrollment/desktop client configuration/password reset
 service.
 
@@ -529,7 +529,7 @@ _EOF_
 
 	while [ X${domain} = "X" ]; do
 		echo -ne "${C_YELLOW}${TXT_INPUT}${C_END} "
-		read -p "Enter Defguard domain [default: ${CFG_DOMAIN}]: " domain
+		read -p "Enter XGuard domain [default: ${CFG_DOMAIN}]: " domain
 		if [ "$domain" ]; then
 			CFG_DOMAIN="$domain"
 		fi
@@ -643,11 +643,11 @@ validate_required_variables() {
 }
 
 generate_external_urls() {
-	# prepare full Defguard URL
+	# prepare full XGuard URL
 	if [ $CFG_USE_HTTPS ]; then
-		CFG_DEFGUARD_URL="https://${CFG_DOMAIN}"
+		CFG_XGUARD_URL="https://${CFG_DOMAIN}"
 	else
-		CFG_DEFGUARD_URL="http://${CFG_DOMAIN}"
+		CFG_XGUARD_URL="http://${CFG_DOMAIN}"
 	fi
 
 	# prepare full enrollment URL
@@ -663,12 +663,12 @@ generate_external_urls() {
 
 print_config() {
 	echo
-	echo " ${TXT_BEGIN} Setting up your Defguard instance with following config:"
+	echo " ${TXT_BEGIN} Setting up your XGuard instance with following config:"
 	echo
 	echo -e "   ${TXT_SUB} data volume: ${C_BOLD}${VOLUME_DIR}${C_END}"
 	echo
 	echo -e "   ${TXT_SUB} domain: ${C_BOLD}${CFG_DOMAIN}${C_END}"
-	echo -e "   ${TXT_SUB} web UI URL: ${C_BOLD}${CFG_DEFGUARD_URL}${C_END}"
+	echo -e "   ${TXT_SUB} web UI URL: ${C_BOLD}${CFG_XGUARD_URL}${C_END}"
 
 	if [ "$CFG_VPN_NAME" ]; then
 		echo -e "   ${TXT_SUB} VPN location name: ${C_BOLD}${CFG_VPN_NAME}${C_END}"
@@ -710,16 +710,16 @@ generate_certs() {
 	echo "PEM passphrase for SSL certificates set to '${PASSPHRASE}'."
 
 	# generate private key for CA
-	openssl genrsa -des3 -out ${SSL_DIR}/defguard-ca.key -passout pass:"${PASSPHRASE}" 2048 2>&1 | tee -a ${LOG_FILE}
+	openssl genrsa -des3 -out ${SSL_DIR}/xguard-ca.key -passout pass:"${PASSPHRASE}" 2048 2>&1 | tee -a ${LOG_FILE}
 	# generate Root Certificate
 	#	TODO: allow configuring CA parameters
-	openssl req -x509 -new -nodes -key ${SSL_DIR}/defguard-ca.key -sha256 -days 1825 -out ${SSL_DIR}/defguard-ca.pem -passin pass:"${PASSPHRASE}" -subj "/CN=${CFG_DOMAIN}" 2>&1 | tee -a ${LOG_FILE}
+	openssl req -x509 -new -nodes -key ${SSL_DIR}/xguard-ca.key -sha256 -days 1825 -out ${SSL_DIR}/xguard-ca.pem -passin pass:"${PASSPHRASE}" -subj "/CN=${CFG_DOMAIN}" 2>&1 | tee -a ${LOG_FILE}
 
-	# generate CA-signed certificate for Defguard gRPC
-	openssl genrsa -out ${SSL_DIR}/defguard-grpc.key 2048 2>&1 | tee -a ${LOG_FILE}
+	# generate CA-signed certificate for XGuard gRPC
+	openssl genrsa -out ${SSL_DIR}/xguard-grpc.key 2048 2>&1 | tee -a ${LOG_FILE}
 
-	openssl req -new -key ${SSL_DIR}/defguard-grpc.key -out ${SSL_DIR}/defguard-grpc.csr -subj "/CN=${CFG_DOMAIN}" 2>&1 | tee -a ${LOG_FILE}
-	cat >${SSL_DIR}/defguard-grpc.ext <<EOF
+	openssl req -new -key ${SSL_DIR}/xguard-grpc.key -out ${SSL_DIR}/xguard-grpc.csr -subj "/CN=${CFG_DOMAIN}" 2>&1 | tee -a ${LOG_FILE}
+	cat >${SSL_DIR}/xguard-grpc.ext <<EOF
 authorityKeyIdentifier=keyid,issuer
 basicConstraints=CA:FALSE
 keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
@@ -729,14 +729,14 @@ DNS.1 = ${CFG_DOMAIN}
 DNS.2 = core
 DNS.3 = localhost
 EOF
-	openssl x509 -req -in ${SSL_DIR}/defguard-grpc.csr -CA ${SSL_DIR}/defguard-ca.pem -CAkey ${SSL_DIR}/defguard-ca.key -passin pass:"${PASSPHRASE}" -CAcreateserial \
-		-out ${SSL_DIR}/defguard-grpc.crt -days 1000 -sha256 -extfile ${SSL_DIR}/defguard-grpc.ext 2>&1 | tee -a ${LOG_FILE}
+	openssl x509 -req -in ${SSL_DIR}/xguard-grpc.csr -CA ${SSL_DIR}/xguard-ca.pem -CAkey ${SSL_DIR}/xguard-ca.key -passin pass:"${PASSPHRASE}" -CAcreateserial \
+		-out ${SSL_DIR}/xguard-grpc.crt -days 1000 -sha256 -extfile ${SSL_DIR}/xguard-grpc.ext 2>&1 | tee -a ${LOG_FILE}
 
-	# generate CA-signed certificate for Defguard proxy gRPC
-	openssl genrsa -out ${SSL_DIR}/defguard-proxy-grpc.key 2048 2>&1 | tee -a ${LOG_FILE}
+	# generate CA-signed certificate for XGuard proxy gRPC
+	openssl genrsa -out ${SSL_DIR}/xguard-proxy-grpc.key 2048 2>&1 | tee -a ${LOG_FILE}
 
-	openssl req -new -key ${SSL_DIR}/defguard-proxy-grpc.key -out ${SSL_DIR}/defguard-proxy-grpc.csr -subj "/CN=${CFG_DOMAIN}" 2>&1 | tee -a ${LOG_FILE}
-	cat >${SSL_DIR}/defguard-proxy-grpc.ext <<EOF
+	openssl req -new -key ${SSL_DIR}/xguard-proxy-grpc.key -out ${SSL_DIR}/xguard-proxy-grpc.csr -subj "/CN=${CFG_DOMAIN}" 2>&1 | tee -a ${LOG_FILE}
+	cat >${SSL_DIR}/xguard-proxy-grpc.ext <<EOF
 authorityKeyIdentifier=keyid,issuer
 basicConstraints=CA:FALSE
 keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
@@ -745,8 +745,8 @@ subjectAltName = @alt_names
 DNS.1 = proxy
 DNS.2 = localhost
 EOF
-	openssl x509 -req -in ${SSL_DIR}/defguard-proxy-grpc.csr -CA ${SSL_DIR}/defguard-ca.pem -CAkey ${SSL_DIR}/defguard-ca.key -passin pass:"${PASSPHRASE}" -CAcreateserial \
-		-out ${SSL_DIR}/defguard-proxy-grpc.crt -days 1000 -sha256 -extfile ${SSL_DIR}/defguard-proxy-grpc.ext 2>&1 | tee -a ${LOG_FILE}
+	openssl x509 -req -in ${SSL_DIR}/xguard-proxy-grpc.csr -CA ${SSL_DIR}/xguard-ca.pem -CAkey ${SSL_DIR}/xguard-ca.key -passin pass:"${PASSPHRASE}" -CAcreateserial \
+		-out ${SSL_DIR}/xguard-proxy-grpc.crt -days 1000 -sha256 -extfile ${SSL_DIR}/xguard-proxy-grpc.ext 2>&1 | tee -a ${LOG_FILE}
 }
 
 generate_rsa() {
@@ -775,7 +775,7 @@ create_caddyfile() {
 	mkdir -p ${caddy_volume_path}
 
 	cat >${caddyfile_path} <<EOF
-${CFG_DEFGUARD_URL} {
+${CFG_XGUARD_URL} {
 	reverse_proxy core:8000
 }
 
@@ -833,23 +833,23 @@ update_env_file() {
 	set_env_file_value "GATEWAY_IMAGE_TAG" "${GATEWAY_IMAGE_TAG}"
 
 	# fill in values
-	set_env_file_secret "DEFGUARD_AUTH_SECRET"
-	set_env_file_secret "DEFGUARD_YUBIBRIDGE_SECRET"
-	set_env_file_secret "DEFGUARD_GATEWAY_SECRET"
-	set_env_file_secret "DEFGUARD_SECRET_KEY"
+	set_env_file_secret "XGUARD_AUTH_SECRET"
+	set_env_file_secret "XGUARD_YUBIBRIDGE_SECRET"
+	set_env_file_secret "XGUARD_GATEWAY_SECRET"
+	set_env_file_secret "XGUARD_SECRET_KEY"
 
 	# use existing password if set in env variable
-	if [ "$DEFGUARD_DB_PASSWORD" ]; then
-		set_env_file_value "DEFGUARD_DB_PASSWORD" "${DEFGUARD_DB_PASSWORD}"
+	if [ "$XGUARD_DB_PASSWORD" ]; then
+		set_env_file_value "XGUARD_DB_PASSWORD" "${XGUARD_DB_PASSWORD}"
 	else
-		set_env_file_password "DEFGUARD_DB_PASSWORD"
+		set_env_file_password "XGUARD_DB_PASSWORD"
 	fi
 
-	DEFGUARD_DEFAULT_ADMIN_PASSWORD="$(generate_password)"
-	set_env_file_value "DEFGUARD_DEFAULT_ADMIN_PASSWORD" "${DEFGUARD_DEFAULT_ADMIN_PASSWORD}"
+	XGUARD_DEFAULT_ADMIN_PASSWORD="$(generate_password)"
+	set_env_file_value "XGUARD_DEFAULT_ADMIN_PASSWORD" "${XGUARD_DEFAULT_ADMIN_PASSWORD}"
 
-	set_env_file_value "DEFGUARD_URL" "${CFG_DEFGUARD_URL}"
-	set_env_file_value "DEFGUARD_WEBAUTHN_RP_ID" "${CFG_DOMAIN}"
+	set_env_file_value "XGUARD_URL" "${CFG_XGUARD_URL}"
+	set_env_file_value "XGUARD_WEBAUTHN_RP_ID" "${CFG_DOMAIN}"
 	print_confirmation
 }
 
@@ -876,7 +876,7 @@ enable_enrollment() {
 
 	# update .env file
 	uncomment_feature "ENROLLMENT" "${PROD_ENV_FILE}"
-	set_env_file_value "DEFGUARD_ENROLLMENT_URL" "${CFG_ENROLLMENT_URL}"
+	set_env_file_value "XGUARD_ENROLLMENT_URL" "${CFG_ENROLLMENT_URL}"
 
 	# update compose file
 	uncomment_feature "ENROLLMENT" "${PROD_COMPOSE_FILE}"
@@ -904,16 +904,16 @@ enable_vpn_gateway() {
 	fi
 
 	# add gateway token to .env file
-	set_env_file_value "DEFGUARD_TOKEN" "${token}"
+	set_env_file_value "XGUARD_TOKEN" "${token}"
 }
 
 print_instance_summary() {
 	echo
-	echo -e "${C_LGREEN} ${TXT_CHECK} Defguard setup finished successfully${C_END}. The Docker image version used for the setup was: ${IMAGE_TYPE_NAME}"
+	echo -e "${C_LGREEN} ${TXT_CHECK} XGuard setup finished successfully${C_END}. The Docker image version used for the setup was: ${IMAGE_TYPE_NAME}"
 	echo
-	echo "If your DNS configuration is correct your Defguard instance should be available at:"
+	echo "If your DNS configuration is correct your XGuard instance should be available at:"
 	echo
-	echo -e "\t${TXT_SUB} Web UI: ${C_BOLD}${CFG_DEFGUARD_URL}${C_END}"
+	echo -e "\t${TXT_SUB} Web UI: ${C_BOLD}${CFG_XGUARD_URL}${C_END}"
 	if [ "$CFG_ENABLE_ENROLLMENT" ]; then
 		echo -e "\t${TXT_SUB} Enrollment service: ${C_BOLD}${CFG_ENROLLMENT_URL}${C_END}"
 	fi
@@ -921,7 +921,7 @@ print_instance_summary() {
 	echo -e " ${TXT_BEGIN} You can log into the UI using the default admin user:"
 	echo
 	echo -e "\t${TXT_SUB} username: ${C_BOLD}admin${C_END}"
-	echo -e "\t${TXT_SUB} password: ${C_BOLD}${DEFGUARD_DEFAULT_ADMIN_PASSWORD}${C_END}"
+	echo -e "\t${TXT_SUB} password: ${C_BOLD}${XGUARD_DEFAULT_ADMIN_PASSWORD}${C_END}"
 	echo
 	if [ "$CFG_ENABLE_VPN" ]; then
 		echo -e "\t\tVPN server public endpoint is ${C_BOLD}${CFG_VPN_GATEWAY_IP}:${CFG_VPN_GATEWAY_PORT}${C_END}"
@@ -938,7 +938,7 @@ print_instance_summary() {
 	echo -e "Persistent data (docker volumes) is stored in ${C_BOLD}${VOLUME_DIR}${C_END}"
 	echo
 	echo -e " ${C_YELLOW}${TXT_STAR} To support our work, please star us on GitHub! ${TXT_STAR}${C_END}"
-	echo -e " ${C_YELLOW}${TXT_STAR} https://github.com/defguard/defguard ${TXT_STAR}${C_END}"
+	echo -e " ${C_YELLOW}${TXT_STAR} https://github.com/Sajjad-alaa/xguard-core ${TXT_STAR}${C_END}"
 	echo
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Exercises /opt/defguard/dg-ctl against a temp stack: real `docker compose config`
+# Exercises /opt/xguard/dg-ctl against a temp stack: real `docker compose config`
 # (offline), everything daemon-facing faked by tests/stub/docker-stub.
 
 load helpers
@@ -114,15 +114,15 @@ teardown() {
 @test "upgrade rewrites only the tag lines in .env" {
   seed_stack core
   write_manifest 9.9.9 9.1 9.2 9.3
-  db_password_before="$(sed -n 's/^DEFGUARD_DB_PASSWORD=//p' "$STACK_DIR/.env")"
+  db_password_before="$(sed -n 's/^XGUARD_DB_PASSWORD=//p' "$STACK_DIR/.env")"
 
   run bash "$CLI" upgrade --yes --skip-tests
   [ "$status" -eq 0 ]
   [[ "$output" == *"layout:    current"* ]]
-  [ "$(sed -n 's/^DEFGUARD_CORE_TAG=//p' "$STACK_DIR/.env")" = "9.1" ]
-  [ "$(sed -n 's/^DEFGUARD_PROXY_TAG=//p' "$STACK_DIR/.env")" = "9.2" ]
-  [ "$(sed -n 's/^DEFGUARD_GATEWAY_TAG=//p' "$STACK_DIR/.env")" = "9.3" ]
-  [ "$(sed -n 's/^DEFGUARD_DB_PASSWORD=//p' "$STACK_DIR/.env")" = "$db_password_before" ]
+  [ "$(sed -n 's/^XGUARD_CORE_TAG=//p' "$STACK_DIR/.env")" = "9.1" ]
+  [ "$(sed -n 's/^XGUARD_PROXY_TAG=//p' "$STACK_DIR/.env")" = "9.2" ]
+  [ "$(sed -n 's/^XGUARD_GATEWAY_TAG=//p' "$STACK_DIR/.env")" = "9.3" ]
+  [ "$(sed -n 's/^XGUARD_DB_PASSWORD=//p' "$STACK_DIR/.env")" = "$db_password_before" ]
   [ "$(file_mode "$STACK_DIR/.env")" = "600" ]
 }
 
@@ -150,7 +150,7 @@ teardown() {
 @test "upgrade migrates a pre-simplification full OVA" {
   seed_legacy_stack full
   write_manifest 3.0.0 3 3 3
-  before_service="$(sha256sum "$DEFGUARD_INIT_SERVICE_FILE" | awk '{print $1}')"
+  before_service="$(sha256sum "$XGUARD_INIT_SERVICE_FILE" | awk '{print $1}')"
 
   run bash "$CLI" upgrade --yes --skip-tests
   [ "$status" -eq 0 ]
@@ -161,20 +161,20 @@ teardown() {
   [ ! -e "$STACK_DIR/docker-compose.standalone.yaml" ]
   [ ! -e "$STACK_DIR/start.sh" ]
   [ -f "$STACK_DIR/init/generate-env.sh" ]
-  [ "$(sed -n 's/^DEFGUARD_CORE_TAG=//p' "$STACK_DIR/init/.image-tags")" = "3" ]
+  [ "$(sed -n 's/^XGUARD_CORE_TAG=//p' "$STACK_DIR/init/.image-tags")" = "3" ]
   [ "$(cat "$STACK_DIR/init/.deployment-mode")" = full ]
-  [ "$(sed -n 's/^DEFGUARD_ADOPT_EDGE=//p' "$STACK_DIR/.env")" = "edge:50051" ]
-  [ "$(sed -n 's/^DEFGUARD_ADOPT_GATEWAY=//p' "$STACK_DIR/.env")" = "host.docker.internal:50066" ]
+  [ "$(sed -n 's/^XGUARD_ADOPT_EDGE=//p' "$STACK_DIR/.env")" = "edge:50051" ]
+  [ "$(sed -n 's/^XGUARD_ADOPT_GATEWAY=//p' "$STACK_DIR/.env")" = "host.docker.internal:50066" ]
   [ "$(docker compose -f "$STACK_DIR/docker-compose.yml" config --services | sort | xargs)" = "core db edge gateway" ]
-  grep -Fq '/opt/stacks/defguard/init/generate-compose.sh' "$DEFGUARD_INIT_SERVICE_FILE"
+  grep -Fq '/opt/stacks/xguard/init/generate-compose.sh' "$XGUARD_INIT_SERVICE_FILE"
   backup_id="$(jq -r '.backup_id' "$OVA_HOME/state.json")"
-  [ -f "$OVA_HOME/backups/$backup_id/defguard-init.service" ]
+  [ -f "$OVA_HOME/backups/$backup_id/xguard-init.service" ]
 
   run bash "$CLI" rollback --skip-tests "$backup_id"
   [ "$status" -eq 0 ]
   [ -f "$STACK_DIR/docker-compose.yaml" ]
   [ ! -e "$STACK_DIR/docker-compose.yml" ]
-  [ "$(sha256sum "$DEFGUARD_INIT_SERVICE_FILE" | awk '{print $1}')" = "$before_service" ]
+  [ "$(sha256sum "$XGUARD_INIT_SERVICE_FILE" | awk '{print $1}')" = "$before_service" ]
 }
 
 @test "upgrade preserves the legacy standalone mode when all profiles are selected" {
@@ -190,13 +190,13 @@ teardown() {
   [ "$deps" = db ]
   docker compose -f "$STACK_DIR/docker-compose.yml" config --format json \
     | jq -e '.services.edge.ports[] | select(.published == "50051")' >/dev/null
-  [ -z "$(sed -n 's/^DEFGUARD_ADOPT_EDGE=//p' "$STACK_DIR/.env")" ]
+  [ -z "$(sed -n 's/^XGUARD_ADOPT_EDGE=//p' "$STACK_DIR/.env")" ]
 }
 
 @test "failed legacy upgrade restores the old layout and startup unit" {
   seed_legacy_stack segmented
   write_manifest 3.0.0 3 3 3
-  before_service="$(sha256sum "$DEFGUARD_INIT_SERVICE_FILE" | awk '{print $1}')"
+  before_service="$(sha256sum "$XGUARD_INIT_SERVICE_FILE" | awk '{print $1}')"
 
   DOCKER_STUB_PULL_FAIL=1 run bash "$CLI" upgrade --yes --skip-tests
   [ "$status" -ne 0 ]
@@ -204,7 +204,7 @@ teardown() {
   [ -f "$STACK_DIR/docker-compose.standalone.yaml" ]
   [ ! -e "$STACK_DIR/docker-compose.yml" ]
   [ -f "$STACK_DIR/start.sh" ]
-  [ "$(sha256sum "$DEFGUARD_INIT_SERVICE_FILE" | awk '{print $1}')" = "$before_service" ]
+  [ "$(sha256sum "$XGUARD_INIT_SERVICE_FILE" | awk '{print $1}')" = "$before_service" ]
   [ "$(cat "$STACK_DIR/.volumes/db/marker")" = "seeded-db-file" ]
 }
 
@@ -213,8 +213,8 @@ teardown() {
   write_manifest 9.9.9 9 9 9
   run bash "$CLI" upgrade --yes --skip-tests --core-tag 3.3.3
   [ "$status" -eq 0 ]
-  [ "$(sed -n 's/^DEFGUARD_CORE_TAG=//p' "$STACK_DIR/.env")" = "3.3.3" ]
-  [ "$(sed -n 's/^DEFGUARD_PROXY_TAG=//p' "$STACK_DIR/.env")" = "9" ]
+  [ "$(sed -n 's/^XGUARD_CORE_TAG=//p' "$STACK_DIR/.env")" = "3.3.3" ]
+  [ "$(sed -n 's/^XGUARD_PROXY_TAG=//p' "$STACK_DIR/.env")" = "9" ]
 }
 
 @test "upgrade records state.json" {
@@ -235,7 +235,7 @@ teardown() {
   mkdir -p "$broken/ova/files"
   cp "$FILES_DIR/lib.sh" "$FILES_DIR/generate-compose.sh" "$broken/ova/files/"
   echo "this: is: not: a: compose: file" > "$broken/ova/files/docker-compose.template.yaml"
-  export DEFGUARD_OVA_SOURCE_DIR="$broken"
+  export XGUARD_OVA_SOURCE_DIR="$broken"
   before="$(sha256sum "$STACK_DIR/docker-compose.yml" | awk '{print $1}')"
 
   run bash "$CLI" upgrade --yes --skip-tests
@@ -248,7 +248,7 @@ teardown() {
 
 @test "upgrade with an unreachable manifest changes nothing" {
   seed_stack core
-  export DEFGUARD_OVA_MANIFEST_URL="file://$STACK_DIR/does-not-exist.json"
+  export XGUARD_OVA_MANIFEST_URL="file://$STACK_DIR/does-not-exist.json"
   run bash "$CLI" upgrade --yes --skip-tests
   [ "$status" -ne 0 ]
   [ "$(ls -1 "$OVA_HOME/backups" | wc -l)" -eq 0 ]
@@ -303,12 +303,12 @@ teardown() {
 @test "migration environment changes feed regenerated Compose interpolation" {
   seed_stack core
   write_manifest 5.0.0 5 5 5 '["5.0.0"]'
-  stage_migration 5.0.0 'printf "DEFGUARD_ADOPT_EDGE=migrated-edge\\n" >> "$ENV_FILE"'
+  stage_migration 5.0.0 'printf "XGUARD_ADOPT_EDGE=migrated-edge\\n" >> "$ENV_FILE"'
 
   run bash "$CLI" upgrade --yes --skip-tests
   [ "$status" -eq 0 ]
   docker compose -f "$STACK_DIR/docker-compose.yml" config --format json \
-    | jq -e '.services.core.environment.DEFGUARD_ADOPT_EDGE == "migrated-edge"' >/dev/null
+    | jq -e '.services.core.environment.XGUARD_ADOPT_EDGE == "migrated-edge"' >/dev/null
 }
 
 @test "upgrade does not re-run a migration already covered by the current version" {
@@ -340,7 +340,7 @@ teardown() {
   [ "$status" -ne 0 ]
   [[ "$output" == *"migration 5.0.0 failed"* ]]
   [[ "$output" == *"rollback"* ]]
-  [ "$(sed -n 's/^DEFGUARD_CORE_TAG=//p' "$STACK_DIR/.env")" = "2" ] # untouched, seeded before the manifest's "5"
+  [ "$(sed -n 's/^XGUARD_CORE_TAG=//p' "$STACK_DIR/.env")" = "2" ] # untouched, seeded before the manifest's "5"
   [ "$(sha256sum "$STACK_DIR/docker-compose.yml" | awk '{print $1}')" = "$before" ]
   # a backup was taken before the migration ran, so rollback is possible
   [ "$(ls -1 "$OVA_HOME/backups" | wc -l)" -eq 1 ]
@@ -499,8 +499,8 @@ teardown() {
   [[ "$output" == *"usage: dg-ctl"* ]]
 }
 
-@test "commands refuse to run outside a defguard stack" {
+@test "commands refuse to run outside a xguard stack" {
   run bash "$CLI" test
   [ "$status" -ne 0 ]
-  [[ "$output" == *"does not look like a defguard OVA host"* ]]
+  [[ "$output" == *"does not look like a xguard OVA host"* ]]
 }

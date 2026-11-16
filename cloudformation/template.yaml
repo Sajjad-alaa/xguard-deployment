@@ -1,64 +1,64 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Full Defguard stack with Core, Proxy, Gateway, and a Database.
+Description: Full XGuard stack with Core, Proxy, Gateway, and a Database.
 Parameters:
   StackPrefix:
     Type: String
-    Default: defguard
-    Description: Prefix for all resource names, if you want to allow multiple Defguard deployments in the same region
+    Default: xguard
+    Description: Prefix for all resource names, if you want to allow multiple XGuard deployments in the same region
     AllowedPattern: ^[a-z0-9-]+$
     ConstraintDescription: Must contain only lowercase letters, numbers, and hyphens
   CoreUrl:
     Type: String
-    Description: The URL for the Defguard Core (e.g., https://core.example.com)
+    Description: The URL for the XGuard Core (e.g., https://core.example.com)
   CoreGrpcPort:
     Type: Number
     Default: 50055
-    Description: The gRPC port for the Defguard Core
+    Description: The gRPC port for the XGuard Core
   CoreHttpPort:
     Type: Number
     Default: 8000
-    Description: The HTTP port for the Defguard Core web UI
+    Description: The HTTP port for the XGuard Core web UI
   CoreCookieInsecure:
     Type: String
     Default: "false"
     AllowedValues:
       - "true"
       - "false"
-    Description: Whether to allow insecure cookies for the Defguard Core web UI. Set to "true" only if accessing the web UI over HTTP (not recommended for production).
+    Description: Whether to allow insecure cookies for the XGuard Core web UI. Set to "true" only if accessing the web UI over HTTP (not recommended for production).
   CoreDefaultAdminPassword:
     Type: String
     NoEcho: true
-    Description: The initial password for the Defguard dashboard admin user
+    Description: The initial password for the XGuard dashboard admin user
   CoreInstanceType:
     Type: String
     Default: t3.micro
-    Description: The instance type for the Defguard Core server
+    Description: The instance type for the XGuard Core server
   ProxyUrl:
     Type: String
-    Description: The URL for the Defguard Proxy (e.g., https://proxy.example.com)
+    Description: The URL for the XGuard Proxy (e.g., https://proxy.example.com)
   ProxyGrpcPort:
     Type: Number
     Default: 50051
-    Description: The gRPC port for the Defguard Proxy
+    Description: The gRPC port for the XGuard Proxy
   ProxyHttpPort:
     Type: Number
     Default: 8000
-    Description: The HTTP port for the Defguard Proxy
+    Description: The HTTP port for the XGuard Proxy
   ProxyInstanceType:
     Type: String
     Default: t3.micro
-    Description: The instance type for the Defguard Proxy server
+    Description: The instance type for the XGuard Proxy server
   GatewayInstanceType:
     Type: String
     Default: t3.micro
-    Description: The instance type for the Defguard Gateway server
+    Description: The instance type for the XGuard Gateway server
   DbName:
     Type: String
-    Default: defguard
+    Default: xguard
     Description: The name of the database
   DbUsername:
     Type: String
-    Default: defguard
+    Default: xguard
     Description: The username for the database
   DbPassword:
     Type: String
@@ -78,7 +78,7 @@ Parameters:
     Description: The instance class for the database
   VpcName:
     Type: String
-    Default: defguard-vpc
+    Default: xguard-vpc
     Description: The name of the VPC
   VpcCidr:
     Type: String
@@ -128,7 +128,7 @@ Parameters:
       - info
       - warn
       - error
-    Description: Log level for Defguard Core component
+    Description: Log level for XGuard Core component
   ProxyLogLevel:
     Type: String
     Default: info
@@ -138,7 +138,7 @@ Parameters:
       - info
       - warn
       - error
-    Description: Log level for Defguard Proxy component
+    Description: Log level for XGuard Proxy component
   GatewayLogLevel:
     Type: String
     Default: info
@@ -148,10 +148,10 @@ Parameters:
       - info
       - warn
       - error
-    Description: Log level for Defguard Gateway component
-  DefguardAmiId:
+    Description: Log level for XGuard Gateway component
+  XGuardAmiId:
     Type: String
-    Description: AMI ID for Defguard.
+    Description: AMI ID for XGuard.
     Default: "ami-030fa11d061f26d50"
   SshKeyName:
     Type: String
@@ -185,7 +185,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
-  DefguardPublicSubnet:
+  XGuardPublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -198,7 +198,7 @@ Resources:
         - Key: Name
           Value: !Sub ${VpcName}-public-subnet-1
   
-  DefguardPublicSubnet2:
+  XGuardPublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -210,7 +210,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${VpcName}-public-subnet-2
-  DefguardPrivateSubnet1:
+  XGuardPrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -221,7 +221,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${VpcName}-private-subnet-1
-  DefguardPrivateSubnet2:
+  XGuardPrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
@@ -246,16 +246,16 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
-  DefguardPublicSubnetRouteTableAssociation:
+  XGuardPublicSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref DefguardPublicSubnet
+      SubnetId: !Ref XGuardPublicSubnet
       RouteTableId: !Ref PublicRouteTable
   
-  DefguardPublicSubnet2RouteTableAssociation:
+  XGuardPublicSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref DefguardPublicSubnet2
+      SubnetId: !Ref XGuardPublicSubnet2
       RouteTableId: !Ref PublicRouteTable
   NATGatewayEIP:
     Type: AWS::EC2::EIP
@@ -268,7 +268,7 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt NATGatewayEIP.AllocationId
-      SubnetId: !Ref DefguardPublicSubnet
+      SubnetId: !Ref XGuardPublicSubnet
       Tags:
         - Key: Name
           Value: !Sub ${VpcName}-nat-gateway
@@ -285,24 +285,24 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATGateway
-  DefguardPrivateSubnet1RouteTableAssociation:
+  XGuardPrivateSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref DefguardPrivateSubnet1
+      SubnetId: !Ref XGuardPrivateSubnet1
       RouteTableId: !Ref PrivateRouteTable
-  DefguardPrivateSubnet2RouteTableAssociation:
+  XGuardPrivateSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref DefguardPrivateSubnet2
+      SubnetId: !Ref XGuardPrivateSubnet2
       RouteTableId: !Ref PrivateRouteTable
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
       DBSubnetGroupName: !Sub ${StackPrefix}-db-subnet-group
-      DBSubnetGroupDescription: Subnet group for Defguard database
+      DBSubnetGroupDescription: Subnet group for XGuard database
       SubnetIds:
-        - !Ref DefguardPrivateSubnet1
-        - !Ref DefguardPrivateSubnet2
+        - !Ref XGuardPrivateSubnet1
+        - !Ref XGuardPrivateSubnet2
       Tags:
         - Key: Name
           Value: !Sub ${StackPrefix}-db-subnet-group
@@ -310,7 +310,7 @@ Resources:
     Type: AWS::RDS::DBParameterGroup
     Properties:
       DBParameterGroupName: !Sub ${StackPrefix}-db-parameter-group
-      Description: Parameter group for Defguard database
+      Description: Parameter group for XGuard database
       Family: postgres17
       Parameters:
         rds.force_ssl: "0"
@@ -485,7 +485,7 @@ Resources:
   CoreNetworkInterface:
     Type: AWS::EC2::NetworkInterface
     Properties:
-      SubnetId: !Ref DefguardPrivateSubnet1
+      SubnetId: !Ref XGuardPrivateSubnet1
       GroupSet:
         - !Ref CoreSecurityGroup
       Tags:
@@ -494,7 +494,7 @@ Resources:
   ProxyNetworkInterface:
     Type: AWS::EC2::NetworkInterface
     Properties:
-      SubnetId: !Ref DefguardPublicSubnet
+      SubnetId: !Ref XGuardPublicSubnet
       GroupSet:
         - !Ref ProxySecurityGroup
       Tags:
@@ -515,7 +515,7 @@ Resources:
   GatewayNetworkInterface:
     Type: AWS::EC2::NetworkInterface
     Properties:
-      SubnetId: !Ref DefguardPublicSubnet
+      SubnetId: !Ref XGuardPublicSubnet
       GroupSet:
         - !Ref GatewaySecurityGroup
       Tags:
@@ -534,7 +534,7 @@ Resources:
       NetworkInterfaceId: !Ref GatewayNetworkInterface
       AllocationId: !GetAtt GatewayElasticIP.AllocationId
 
-  # Public reverse proxy (ALB) for Defguard Proxy
+  # Public reverse proxy (ALB) for XGuard Proxy
   PublicProxyALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -543,8 +543,8 @@ Resources:
       Scheme: internet-facing
       IpAddressType: ipv4
       Subnets:
-        - !Ref DefguardPublicSubnet
-        - !Ref DefguardPublicSubnet2
+        - !Ref XGuardPublicSubnet
+        - !Ref XGuardPublicSubnet2
       SecurityGroups:
         - !Ref PublicProxyALBSecurityGroup
       Tags:
@@ -598,7 +598,7 @@ Resources:
       Certificates:
         - CertificateArn: !Ref SSLCertificateArn
 
-  # Internal reverse proxy (ALB) for Defguard Core
+  # Internal reverse proxy (ALB) for XGuard Core
   InternalProxyALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -607,8 +607,8 @@ Resources:
       Scheme: internal
       IpAddressType: ipv4
       Subnets:
-        - !Ref DefguardPrivateSubnet1
-        - !Ref DefguardPrivateSubnet2
+        - !Ref XGuardPrivateSubnet1
+        - !Ref XGuardPrivateSubnet2
       SecurityGroups:
         - !Ref InternalProxyALBSecurityGroup
       Tags:
@@ -752,7 +752,7 @@ Resources:
   CoreInstance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: !Ref DefguardAmiId
+      ImageId: !Ref XGuardAmiId
       InstanceType: !Ref CoreInstanceType
       KeyName: !If [UseSshKey, !Ref SshKeyName, !Ref "AWS::NoValue"]
       IamInstanceProfile: !Ref CoreInstanceProfile
@@ -764,7 +764,7 @@ Resources:
           Fn::Sub: |
             #!/bin/bash
             set -e
-            LOG_FILE="/var/log/defguard.log"
+            LOG_FILE="/var/log/xguard.log"
 
             log() {
                 echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
@@ -784,54 +784,54 @@ Resources:
             aws secretsmanager create-secret --name "/${AWS::StackName}/gateway/secret" --secret-string "$GATEWAY_SECRET" --region ${AWS::Region} || \
               aws secretsmanager put-secret-value --secret-id "/${AWS::StackName}/gateway/secret" --secret-string "$GATEWAY_SECRET" --region ${AWS::Region}
             
-            log "Writing Core configuration to /etc/defguard/core.conf..."
-            mkdir -p /etc/defguard
-            tee /etc/defguard/core.conf <<EOF
+            log "Writing Core configuration to /etc/xguard/core.conf..."
+            mkdir -p /etc/xguard
+            tee /etc/xguard/core.conf <<EOF
             ### Core configuration ###
-            DEFGUARD_AUTH_SECRET=$(generate_secret_inner 64)
-            DEFGUARD_GATEWAY_SECRET=$GATEWAY_SECRET
-            DEFGUARD_YUBIBRIDGE_SECRET=$(generate_secret_inner 64)
-            DEFGUARD_SECRET_KEY=$(generate_secret_inner 64)
-            DEFGUARD_URL=${CoreUrl}
-            DEFGUARD_AUTH_SESSION_LIFETIME=604800
-            DEFGUARD_ADMIN_GROUPNAME=admin
-            DEFGUARD_DEFAULT_ADMIN_PASSWORD=${CoreDefaultAdminPassword}
-            DEFGUARD_GRPC_PORT=${CoreGrpcPort}
-            DEFGUARD_HTTP_PORT=${CoreHttpPort}
-            DEFGUARD_COOKIE_INSECURE=${CoreCookieInsecure}
-            DEFGUARD_LOG_LEVEL=${CoreLogLevel}
+            XGUARD_AUTH_SECRET=$(generate_secret_inner 64)
+            XGUARD_GATEWAY_SECRET=$GATEWAY_SECRET
+            XGUARD_YUBIBRIDGE_SECRET=$(generate_secret_inner 64)
+            XGUARD_SECRET_KEY=$(generate_secret_inner 64)
+            XGUARD_URL=${CoreUrl}
+            XGUARD_AUTH_SESSION_LIFETIME=604800
+            XGUARD_ADMIN_GROUPNAME=admin
+            XGUARD_DEFAULT_ADMIN_PASSWORD=${CoreDefaultAdminPassword}
+            XGUARD_GRPC_PORT=${CoreGrpcPort}
+            XGUARD_HTTP_PORT=${CoreHttpPort}
+            XGUARD_COOKIE_INSECURE=${CoreCookieInsecure}
+            XGUARD_LOG_LEVEL=${CoreLogLevel}
             
             ### gRPC SSL configuration ###
-            DEFGUARD_PROXY_GRPC_CA=/etc/defguard/ssl/defguard-ca.pem
-            DEFGUARD_GRPC_CERT=/etc/defguard/ssl/defguard-grpc.crt
-            DEFGUARD_GRPC_KEY=/etc/defguard/ssl/defguard-grpc.key
+            XGUARD_PROXY_GRPC_CA=/etc/xguard/ssl/xguard-ca.pem
+            XGUARD_GRPC_CERT=/etc/xguard/ssl/xguard-grpc.crt
+            XGUARD_GRPC_KEY=/etc/xguard/ssl/xguard-grpc.key
 
             ### Proxy configuration ###
-            DEFGUARD_PROXY_URL=https://${ProxyNetworkInterface.PrimaryPrivateIpAddress}:${ProxyGrpcPort}
-            DEFGUARD_ENROLLMENT_URL=${ProxyUrl}
+            XGUARD_PROXY_URL=https://${ProxyNetworkInterface.PrimaryPrivateIpAddress}:${ProxyGrpcPort}
+            XGUARD_ENROLLMENT_URL=${ProxyUrl}
 
             ### DB configuration ###
-            DEFGUARD_DB_HOST="${Database.Endpoint.Address}"
-            DEFGUARD_DB_PORT=${DbPort}
-            DEFGUARD_DB_NAME="${DbName}"
-            DEFGUARD_DB_USER="${DbUsername}"
-            DEFGUARD_DB_PASSWORD="${DbPassword}"
+            XGUARD_DB_HOST="${Database.Endpoint.Address}"
+            XGUARD_DB_PORT=${DbPort}
+            XGUARD_DB_NAME="${DbName}"
+            XGUARD_DB_USER="${DbUsername}"
+            XGUARD_DB_PASSWORD="${DbPassword}"
             EOF
 
             log "Generating gRPC SSL certificates..."
 
-            mkdir -p /etc/defguard/ssl
-            cd /etc/defguard/ssl
+            mkdir -p /etc/xguard/ssl
+            cd /etc/xguard/ssl
             
             # Extract domain from CoreUrl
             DOMAIN=$(echo "${CoreUrl}" | sed 's|https\?://||' | cut -d'/' -f1)
             PASSPHRASE=$(generate_secret_inner 64)
 
-            openssl genrsa -des3 -out defguard-ca.key -passout pass:"${!PASSPHRASE}" 2048 2>&1
-            openssl req -x509 -new -nodes -key defguard-ca.key -sha256 -days 1825 -out defguard-ca.pem -passin pass:"${!PASSPHRASE}" -subj "/CN=${!DOMAIN}" 2>&1
-            openssl genrsa -out defguard-grpc.key 2048 2>&1
-            openssl req -new -key defguard-grpc.key -out defguard-grpc.csr -subj "/CN=${!DOMAIN}" 2>&1
-            cat >defguard-grpc.ext <<EOF
+            openssl genrsa -des3 -out xguard-ca.key -passout pass:"${!PASSPHRASE}" 2048 2>&1
+            openssl req -x509 -new -nodes -key xguard-ca.key -sha256 -days 1825 -out xguard-ca.pem -passin pass:"${!PASSPHRASE}" -subj "/CN=${!DOMAIN}" 2>&1
+            openssl genrsa -out xguard-grpc.key 2048 2>&1
+            openssl req -new -key xguard-grpc.key -out xguard-grpc.csr -subj "/CN=${!DOMAIN}" 2>&1
+            cat >xguard-grpc.ext <<EOF
             authorityKeyIdentifier=keyid,issuer
             basicConstraints=CA:FALSE
             keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
@@ -841,13 +841,13 @@ Resources:
             DNS.1= localhost
             EOF
 
-            openssl x509 -req -in defguard-grpc.csr -CA defguard-ca.pem -CAkey defguard-ca.key -passin pass:"${!PASSPHRASE}" -CAcreateserial \
-            -out defguard-grpc.crt -days 1000 -sha256 -extfile defguard-grpc.ext 2>&1
+            openssl x509 -req -in xguard-grpc.csr -CA xguard-ca.pem -CAkey xguard-ca.key -passin pass:"${!PASSPHRASE}" -CAcreateserial \
+            -out xguard-grpc.crt -days 1000 -sha256 -extfile xguard-grpc.ext 2>&1
             
-            openssl genrsa -out defguard-proxy-grpc.key 2048 2>&1
+            openssl genrsa -out xguard-proxy-grpc.key 2048 2>&1
 
-            openssl req -new -key defguard-proxy-grpc.key -out defguard-proxy-grpc.csr -subj "/CN=${!DOMAIN}" 2>&1
-            cat >defguard-proxy-grpc.ext <<EOF
+            openssl req -new -key xguard-proxy-grpc.key -out xguard-proxy-grpc.csr -subj "/CN=${!DOMAIN}" 2>&1
+            cat >xguard-proxy-grpc.ext <<EOF
             authorityKeyIdentifier=keyid,issuer
             basicConstraints=CA:FALSE
             keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
@@ -856,40 +856,40 @@ Resources:
             IP.1 = ${ProxyNetworkInterface.PrimaryPrivateIpAddress}
             DNS.1 = localhost
             EOF
-            openssl x509 -req -in defguard-proxy-grpc.csr -CA defguard-ca.pem -CAkey defguard-ca.key -passin pass:"${!PASSPHRASE}" -CAcreateserial \
-              -out defguard-proxy-grpc.crt -days 1000 -sha256 -extfile defguard-proxy-grpc.ext 2>&1
+            openssl x509 -req -in xguard-proxy-grpc.csr -CA xguard-ca.pem -CAkey xguard-ca.key -passin pass:"${!PASSPHRASE}" -CAcreateserial \
+              -out xguard-proxy-grpc.crt -days 1000 -sha256 -extfile xguard-proxy-grpc.ext 2>&1
 
             # Set permissions
-            chmod 644 /etc/defguard/ssl/*.key
-            chmod 644 /etc/defguard/ssl/*.pem /etc/defguard/ssl/*.crt
+            chmod 644 /etc/xguard/ssl/*.key
+            chmod 644 /etc/xguard/ssl/*.pem /etc/xguard/ssl/*.crt
             
             # Store certificates in Secrets Manager for other instances
             log "Storing certificates in Secrets Manager..."
-            aws secretsmanager create-secret --name "/${AWS::StackName}/grpc/ca-pem" --secret-string file://defguard-ca.pem --region ${AWS::Region} || \
-              aws secretsmanager put-secret-value --secret-id "/${AWS::StackName}/grpc/ca-pem" --secret-string file://defguard-ca.pem --region ${AWS::Region}
+            aws secretsmanager create-secret --name "/${AWS::StackName}/grpc/ca-pem" --secret-string file://xguard-ca.pem --region ${AWS::Region} || \
+              aws secretsmanager put-secret-value --secret-id "/${AWS::StackName}/grpc/ca-pem" --secret-string file://xguard-ca.pem --region ${AWS::Region}
             
             aws secretsmanager create-secret --name "/${AWS::StackName}/grpc/ca-passphrase" --secret-string "${!PASSPHRASE}" --region ${AWS::Region} || \
               aws secretsmanager put-secret-value --secret-id "/${AWS::StackName}/grpc/ca-passphrase" --secret-string "${!PASSPHRASE}" --region ${AWS::Region}
             
-            aws secretsmanager create-secret --name "/${AWS::StackName}/grpc/proxy-key" --secret-string file://defguard-proxy-grpc.key --region ${AWS::Region} || \
-              aws secretsmanager put-secret-value --secret-id "/${AWS::StackName}/grpc/proxy-key" --secret-string file://defguard-proxy-grpc.key --region ${AWS::Region}
+            aws secretsmanager create-secret --name "/${AWS::StackName}/grpc/proxy-key" --secret-string file://xguard-proxy-grpc.key --region ${AWS::Region} || \
+              aws secretsmanager put-secret-value --secret-id "/${AWS::StackName}/grpc/proxy-key" --secret-string file://xguard-proxy-grpc.key --region ${AWS::Region}
             
-            aws secretsmanager create-secret --name "/${AWS::StackName}/grpc/proxy-crt" --secret-string file://defguard-proxy-grpc.crt --region ${AWS::Region} || \
-              aws secretsmanager put-secret-value --secret-id "/${AWS::StackName}/grpc/proxy-crt" --secret-string file://defguard-proxy-grpc.crt --region ${AWS::Region}
+            aws secretsmanager create-secret --name "/${AWS::StackName}/grpc/proxy-crt" --secret-string file://xguard-proxy-grpc.crt --region ${AWS::Region} || \
+              aws secretsmanager put-secret-value --secret-id "/${AWS::StackName}/grpc/proxy-crt" --secret-string file://xguard-proxy-grpc.crt --region ${AWS::Region}
             
             # Clean up temporary files
-            rm -f defguard-grpc.csr defguard-grpc.ext defguard-proxy-grpc.csr defguard-proxy-grpc.ext defguard-ca.key defguard-ca.srl
+            rm -f xguard-grpc.csr xguard-grpc.ext xguard-proxy-grpc.csr xguard-proxy-grpc.ext xguard-ca.key xguard-ca.srl
             
             log "gRPC SSL certificates generated and stored"
 
-            log "Enabling defguard service..."
-            systemctl enable defguard
+            log "Enabling xguard service..."
+            systemctl enable xguard
 
-            log "Starting defguard service..."
-            systemctl start defguard
+            log "Starting xguard service..."
+            systemctl start xguard
 
             log "Creating VPN location with address ${VpnNetworkAddress} and endpoint ${GatewayElasticIP} and port ${VpnNetworkPort}..."
-            export $(grep -v '^#' /etc/defguard/core.conf | xargs) && /usr/bin/defguard --secret-key "$GATEWAY_SECRET" init-vpn-location --name ${VpnNetworkName} --address ${VpnNetworkAddress} --endpoint ${GatewayElasticIP} --port ${VpnNetworkPort} --id 1 --allowed-ips ${VpnNetworkAddress} --allowed-ips ${VpcCidr} >> "$LOG_FILE" 2>&1
+            export $(grep -v '^#' /etc/xguard/core.conf | xargs) && /usr/bin/xguard --secret-key "$GATEWAY_SECRET" init-vpn-location --name ${VpnNetworkName} --address ${VpnNetworkAddress} --endpoint ${GatewayElasticIP} --port ${VpnNetworkPort} --id 1 --allowed-ips ${VpnNetworkAddress} --allowed-ips ${VpcCidr} >> "$LOG_FILE" 2>&1
 
             log "Created VPN location ${VpnNetworkName} with address ${VpnNetworkAddress} and endpoint ${GatewayElasticIP} and port ${VpnNetworkPort}"
 
@@ -903,7 +903,7 @@ Resources:
   ProxyInstance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: !Ref DefguardAmiId
+      ImageId: !Ref XGuardAmiId
       InstanceType: !Ref ProxyInstanceType
       KeyName: !If [UseSshKey, !Ref SshKeyName, !Ref "AWS::NoValue"]
       IamInstanceProfile: !Ref ProxyInstanceProfile
@@ -915,7 +915,7 @@ Resources:
           Fn::Sub: |
             #!/bin/bash
             set -e
-            LOG_FILE="/var/log/defguard.log"
+            LOG_FILE="/var/log/xguard.log"
 
             log() {
                 echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
@@ -923,9 +923,9 @@ Resources:
 
             (
 
-            log "Writing proxy configuration to /etc/defguard/proxy.toml..."
-            mkdir -p /etc/defguard
-            tee /etc/defguard/proxy.toml <<EOF
+            log "Writing proxy configuration to /etc/xguard/proxy.toml..."
+            mkdir -p /etc/xguard
+            tee /etc/xguard/proxy.toml <<EOF
             # port the API server will listen on
             http_port = ${ProxyHttpPort}
             # port the gRPC server will listen on
@@ -937,23 +937,23 @@ Resources:
             url = "${ProxyUrl}"
 
             # gRPC SSL configuration
-            grpc_cert = "/etc/defguard/ssl/defguard-proxy-grpc.crt"
-            grpc_key = "/etc/defguard/ssl/defguard-proxy-grpc.key"
+            grpc_cert = "/etc/xguard/ssl/xguard-proxy-grpc.crt"
+            grpc_key = "/etc/xguard/ssl/xguard-proxy-grpc.key"
 
             EOF
 
             log "Retrieving gRPC SSL certificates from Secrets Manager..."
-            mkdir -p /etc/defguard/ssl
-            aws secretsmanager get-secret-value --secret-id "/${AWS::StackName}/grpc/proxy-key" --region ${AWS::Region} --query 'SecretString' --output text > /etc/defguard/ssl/defguard-proxy-grpc.key
-            aws secretsmanager get-secret-value --secret-id "/${AWS::StackName}/grpc/proxy-crt" --region ${AWS::Region} --query 'SecretString' --output text > /etc/defguard/ssl/defguard-proxy-grpc.crt
-            chmod 644 /etc/defguard/ssl/*.key /etc/defguard/ssl/*.crt
+            mkdir -p /etc/xguard/ssl
+            aws secretsmanager get-secret-value --secret-id "/${AWS::StackName}/grpc/proxy-key" --region ${AWS::Region} --query 'SecretString' --output text > /etc/xguard/ssl/xguard-proxy-grpc.key
+            aws secretsmanager get-secret-value --secret-id "/${AWS::StackName}/grpc/proxy-crt" --region ${AWS::Region} --query 'SecretString' --output text > /etc/xguard/ssl/xguard-proxy-grpc.crt
+            chmod 644 /etc/xguard/ssl/*.key /etc/xguard/ssl/*.crt
             log "gRPC SSL certificates retrieved and configured"
 
-            log "Enabling defguard-proxy service..."
-            systemctl enable defguard-proxy
+            log "Enabling xguard-proxy service..."
+            systemctl enable xguard-proxy
 
-            log "Starting defguard-proxy service..."
-            systemctl start defguard-proxy
+            log "Starting xguard-proxy service..."
+            systemctl start xguard-proxy
 
             log "Setup completed."
             ) 2>&1 | tee -a "$LOG_FILE"
@@ -965,7 +965,7 @@ Resources:
   GatewayInstance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: !Ref DefguardAmiId
+      ImageId: !Ref XGuardAmiId
       InstanceType: !Ref GatewayInstanceType
       KeyName: !If [UseSshKey, !Ref SshKeyName, !Ref "AWS::NoValue"]
       IamInstanceProfile: !Ref GatewayInstanceProfile
@@ -978,7 +978,7 @@ Resources:
           - |
             #!/bin/bash
             set -e
-            LOG_FILE="/var/log/defguard.log"
+            LOG_FILE="/var/log/xguard.log"
 
             log() {
                 echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
@@ -991,9 +991,9 @@ Resources:
             (
 
             log "Retrieving gRPC CA certificate from Secrets Manager..."
-            mkdir -p /etc/defguard/ssl
-            aws secretsmanager get-secret-value --secret-id "/${AWS::StackName}/grpc/ca-pem" --region ${AWS::Region} --query 'SecretString' --output text > /etc/defguard/ssl/defguard-ca.pem
-            chmod 644 /etc/defguard/ssl/defguard-ca.pem
+            mkdir -p /etc/xguard/ssl
+            aws secretsmanager get-secret-value --secret-id "/${AWS::StackName}/grpc/ca-pem" --region ${AWS::Region} --query 'SecretString' --output text > /etc/xguard/ssl/xguard-ca.pem
+            chmod 644 /etc/xguard/ssl/xguard-ca.pem
             log "gRPC CA certificate retrieved"
             
             log "Retrieving gateway secret from Secrets Manager..."
@@ -1002,7 +1002,7 @@ Resources:
             
             log "Generating gateway token..."
             NETWORK_ID="1"
-            ISSUER="DefGuard"
+            ISSUER="XGuard"
 
             HEADER='{"alg":"HS256","typ":"JWT"}'
             NOW=$(date +%s)
@@ -1010,7 +1010,7 @@ Resources:
             PAYLOAD=$(cat <<EOF
             {
               "iss": "$ISSUER",
-              "sub": "DEFGUARD-NETWORK-$NETWORK_ID",
+              "sub": "XGUARD-NETWORK-$NETWORK_ID",
               "client_id": "$NETWORK_ID",
               "exp": $EXPIRATION,
               "nbf": $NOW
@@ -1024,30 +1024,30 @@ Resources:
 
             GATEWAY_TOKEN="$SIGNING_INPUT.$SIGNATURE"
 
-            log "Writing gateway configuration to /etc/defguard/gateway.toml..."
-            mkdir -p /etc/defguard
-            tee /etc/defguard/gateway.toml <<EOF
-            # This is an example config file for defguard VPN gateway
+            log "Writing gateway configuration to /etc/xguard/gateway.toml..."
+            mkdir -p /etc/xguard
+            tee /etc/xguard/gateway.toml <<EOF
+            # This is an example config file for xguard VPN gateway
             # To use it fill in actual values for your deployment below
 
-            # Required: secret token generated by defguard
+            # Required: secret token generated by xguard
             # NOTE: must replace default with actual value
             token = "$GATEWAY_TOKEN"
-            # Required: defguard server gRPC endpoint URL
+            # Required: xguard server gRPC endpoint URL
             # NOTE: must replace default with actual value
             grpc_url = "https://${CorePrivateIP}:${CoreGrpcPort}"
-            # Optional: gateway name which will be displayed in defguard web UI
-            name = "defguard-gateway-1"
+            # Optional: gateway name which will be displayed in xguard web UI
+            name = "xguard-gateway-1"
             # Required: use userspace WireGuard implementation (e.g. wireguard-go)
             userspace = false
             # Optional: path to TLS cert file
-            grpc_ca = "/etc/defguard/ssl/defguard-ca.pem"
-            # Required: how often should interface stat updates be sent to defguard server (in seconds)
+            grpc_ca = "/etc/xguard/ssl/xguard-ca.pem"
+            # Required: how often should interface stat updates be sent to xguard server (in seconds)
             stats_period = 60
             # Required: name of WireGuard interface
             ifname = "wg0"
             # Optional: write PID to this file
-            # pidfile = defguard-gateway.pid
+            # pidfile = xguard-gateway.pid
             # Required: enable logging to syslog
             use_syslog = false
             # Required: which syslog facility to use
@@ -1082,7 +1082,7 @@ Resources:
             # Optional: Enable automatic masquerading of traffic by the firewall
             masquerade = ${VpnNetworkNat}
 
-            # Optional: Set the priority of the Defguard forward chain
+            # Optional: Set the priority of the XGuard forward chain
             #fw_priority = 0
 
             log_level = "${GatewayLogLevel}"
@@ -1101,11 +1101,11 @@ Resources:
             log "Reloading systemd daemon to apply changes..."
             systemctl daemon-reload
 
-            log "Enabling defguard-gateway service..."
-            systemctl enable defguard-gateway
+            log "Enabling xguard-gateway service..."
+            systemctl enable xguard-gateway
 
-            log "Starting defguard-gateway service..."
-            systemctl start defguard-gateway
+            log "Starting xguard-gateway service..."
+            systemctl start xguard-gateway
             log "testing secret string generation..."
 
             log "Setup completed."
@@ -1117,18 +1117,18 @@ Resources:
     DependsOn:
       - CoreInstance
 
-  # Lambda function to call Defguard API for device creation
-  DefguardFirstDeviceFunction:
+  # Lambda function to call XGuard API for device creation
+  XGuardFirstDeviceFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub ${StackPrefix}-defguard-device-setup
+      FunctionName: !Sub ${StackPrefix}-xguard-device-setup
       Runtime: python3.9
       Handler: index.handler
       VpcConfig:
         SecurityGroupIds:
           - !Ref LambdaSecurityGroup
         SubnetIds:
-          - !Ref DefguardPrivateSubnet1
+          - !Ref XGuardPrivateSubnet1
       Code:
         ZipFile: |
           import json
@@ -1143,9 +1143,9 @@ Resources:
               
               # Use existing ID for updates/deletes, let CloudFormation generate one for creates
               if physical_resource_id is None and event['RequestType'] != 'Create':
-                  physical_resource_id = event.get('PhysicalResourceId', 'DefguardDeviceSetup')
+                  physical_resource_id = event.get('PhysicalResourceId', 'XGuardDeviceSetup')
               elif physical_resource_id is None:
-                  physical_resource_id = 'DefguardDeviceSetup'
+                  physical_resource_id = 'XGuardDeviceSetup'
               
               response_url = event['ResponseURL']
               
@@ -1239,7 +1239,7 @@ Resources:
                   data=auth_data,
                   headers={
                       'Content-Type': 'application/json',
-                      'User-Agent': 'Defguard-CloudFormation-Setup/1.0'
+                      'User-Agent': 'XGuard-CloudFormation-Setup/1.0'
                   },
                   method='POST'
               )
@@ -1253,8 +1253,8 @@ Resources:
               
               session_cookie = None
               for header_name, header_value in auth_response.headers.items():
-                  if header_name.lower() == 'set-cookie' and 'defguard_session=' in header_value:
-                      session_cookie = header_value.split('defguard_session=')[1].split(';')[0]
+                  if header_name.lower() == 'set-cookie' and 'xguard_session=' in header_value:
+                      session_cookie = header_value.split('xguard_session=')[1].split(';')[0]
                       break
               
               if not session_cookie:
@@ -1274,8 +1274,8 @@ Resources:
                   data=token_data,
                   headers={
                       'Content-Type': 'application/json',
-                      'User-Agent': 'Defguard-CloudFormation-Setup/1.0',
-                      'Cookie': f'defguard_session={session_cookie}'
+                      'User-Agent': 'XGuard-CloudFormation-Setup/1.0',
+                      'Cookie': f'xguard_session={session_cookie}'
                   },
                   method='POST'
               )
@@ -1292,30 +1292,30 @@ Resources:
                   error_msg = e.read().decode()
                   print(f"Token creation failed: {e.code} - {error_msg}")
                   return f"API_CALL_FAILED_{e.code}_{error_msg[:50]}"
-      Role: !GetAtt DefguardApiRole.Arn
+      Role: !GetAtt XGuardApiRole.Arn
       Timeout: 300
     DependsOn:
       - CoreInstance
       - CoreNetworkInterface
       - NATGateway
       - LambdaSecurityGroup
-      - DefguardPrivateSubnet1
+      - XGuardPrivateSubnet1
       - PrivateRouteTable
       - PrivateRoute
-      - DefguardPrivateSubnet1RouteTableAssociation
-      - DefguardPrivateSubnet2
-      - DefguardPrivateSubnet2RouteTableAssociation
+      - XGuardPrivateSubnet1RouteTableAssociation
+      - XGuardPrivateSubnet2
+      - XGuardPrivateSubnet2RouteTableAssociation
       - InternetGateway
       - VPCGatewayAttachment
       - VPC
       - PublicRouteTable
       - PublicRoute
-      - DefguardPublicSubnet
-      - DefguardPublicSubnetRouteTableAssociation
-      - DefguardPublicSubnet2
-      - DefguardPublicSubnet2RouteTableAssociation
+      - XGuardPublicSubnet
+      - XGuardPublicSubnetRouteTableAssociation
+      - XGuardPublicSubnet2
+      - XGuardPublicSubnet2RouteTableAssociation
 
-  DefguardApiRole:
+  XGuardApiRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -1332,7 +1332,7 @@ Resources:
   DeviceSetup:
     Type: AWS::CloudFormation::CustomResource
     Properties:
-      ServiceToken: !GetAtt DefguardFirstDeviceFunction.Arn
+      ServiceToken: !GetAtt XGuardFirstDeviceFunction.Arn
       CoreIP: !GetAtt CoreNetworkInterface.PrimaryPrivateIpAddress
       CorePort: !Ref CoreHttpPort
       AdminPassword: !Ref CoreDefaultAdminPassword
@@ -1343,28 +1343,28 @@ Resources:
 ############################# Template outputs ############################
 ###########################################################################
 Outputs:
-  DefguardCorePrivateAddress:
-    Description: The IP address of the Defguard Core instance in the internal network
+  XGuardCorePrivateAddress:
+    Description: The IP address of the XGuard Core instance in the internal network
     Value: !GetAtt CoreNetworkInterface.PrimaryPrivateIpAddress
     Export:
       Name: !Sub ${AWS::StackName}-core-private-ip
-  DefguardProxyPrivateAddress:
-    Description: The private IP address of the Defguard Proxy instance
+  XGuardProxyPrivateAddress:
+    Description: The private IP address of the XGuard Proxy instance
     Value: !GetAtt ProxyNetworkInterface.PrimaryPrivateIpAddress
     Export:
       Name: !Sub ${AWS::StackName}-proxy-private-ip
-  DefguardProxyPublicAddress:
-    Description: The public IP address of the Defguard Proxy instance
+  XGuardProxyPublicAddress:
+    Description: The public IP address of the XGuard Proxy instance
     Value: !Ref ProxyElasticIP
     Export:
       Name: !Sub ${AWS::StackName}-proxy-public-ip
-  DefguardGatewayPublicAddress:
-    Description: The public IP address of the Defguard Gateway instance
+  XGuardGatewayPublicAddress:
+    Description: The public IP address of the XGuard Gateway instance
     Value: !Ref GatewayElasticIP
     Export:
       Name: !Sub ${AWS::StackName}-gateway-public-ip
-  DefguardGatewayPrivateAddress:
-    Description: The private IP address of the Defguard Gateway instance
+  XGuardGatewayPrivateAddress:
+    Description: The private IP address of the XGuard Gateway instance
     Value: !GetAtt GatewayNetworkInterface.PrimaryPrivateIpAddress
     Export:
       Name: !Sub ${AWS::StackName}-gateway-private-ip
@@ -1380,17 +1380,17 @@ Outputs:
       Name: !Sub ${AWS::StackName}-vpc-id
   PublicSubnetId:
     Description: The ID of the public subnet
-    Value: !Ref DefguardPublicSubnet
+    Value: !Ref XGuardPublicSubnet
     Export:
       Name: !Sub ${AWS::StackName}-public-subnet-id
   AdminFirstDeviceToken:
-    Description: Enrollment token for admin's first device. Use it to add the first device to Defguard and access the VPN.
+    Description: Enrollment token for admin's first device. Use it to add the first device to XGuard and access the VPN.
     Value: !GetAtt DeviceSetup.Token
     Export:
       Name: !Sub ${AWS::StackName}-admin-first-device-token
   
   PublicProxyALBDNSName:
-    Description: DNS name of the public reverse proxy (ALB) for Defguard Proxy
+    Description: DNS name of the public reverse proxy (ALB) for XGuard Proxy
     Value: !GetAtt PublicProxyALB.DNSName
     Export:
       Name: !Sub ${AWS::StackName}-public-proxy-alb-dns-name
@@ -1402,13 +1402,13 @@ Outputs:
       Name: !Sub ${AWS::StackName}-public-proxy-alb-hosted-zone-id
   
   PublicProxyURL:
-    Description: URL of the public reverse proxy for Defguard Proxy (uses ProxyUrl parameter)
+    Description: URL of the public reverse proxy for XGuard Proxy (uses ProxyUrl parameter)
     Value: !Ref ProxyUrl
     Export:
       Name: !Sub ${AWS::StackName}-public-proxy-url
   
   InternalProxyALBDNSName:
-    Description: DNS name of the internal reverse proxy (ALB) for Defguard Core
+    Description: DNS name of the internal reverse proxy (ALB) for XGuard Core
     Value: !GetAtt InternalProxyALB.DNSName
     Export:
       Name: !Sub ${AWS::StackName}-internal-proxy-alb-dns-name
@@ -1420,7 +1420,7 @@ Outputs:
       Name: !Sub ${AWS::StackName}-internal-proxy-alb-hosted-zone-id
   
   InternalProxyURL:
-    Description: URL of the internal reverse proxy for Defguard Core (uses CoreUrl parameter)
+    Description: URL of the internal reverse proxy for XGuard Core (uses CoreUrl parameter)
     Value: !Ref CoreUrl
     Export:
       Name: !Sub ${AWS::StackName}-internal-proxy-url

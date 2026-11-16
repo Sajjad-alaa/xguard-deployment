@@ -46,17 +46,17 @@ variable "name_prefix" {
 }
 
 variable "db_name" {
-  description = "Database created for Defguard"
+  description = "Database created for XGuard"
   type        = string
 }
 
 variable "db_username" {
-  description = "Database role created for Defguard"
+  description = "Database role created for XGuard"
   type        = string
 }
 
 variable "db_password" {
-  description = "Password for the Defguard database role"
+  description = "Password for the XGuard database role"
   type        = string
   sensitive   = true
 }

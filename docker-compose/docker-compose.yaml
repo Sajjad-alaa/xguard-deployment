@@ -5,9 +5,9 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: defguard
-      POSTGRES_USER: defguard
-      POSTGRES_PASSWORD: ${DEFGUARD_DB_PASSWORD}
+      POSTGRES_DB: xguard
+      POSTGRES_USER: xguard
+      POSTGRES_PASSWORD: ${XGUARD_DB_PASSWORD}
     volumes:
       - ${VOLUME_DIR:-./.volumes}/db:/var/lib/postgresql/data
     # ports:
@@ -27,30 +27,30 @@ services:
   #     - "443:443"  # [PROXY]
 
   core:
-    image: ghcr.io/defguard/defguard:${CORE_IMAGE_TAG:-1.6}
+    image: ghcr.io/sajjad-alaa/xguard-core:${CORE_IMAGE_TAG:-1.6}
     restart: unless-stopped
     environment:
-      DEFGUARD_AUTH_SECRET: ${DEFGUARD_AUTH_SECRET}
-      DEFGUARD_GATEWAY_SECRET: ${DEFGUARD_GATEWAY_SECRET}
-      DEFGUARD_YUBIBRIDGE_SECRET: ${DEFGUARD_YUBIBRIDGE_SECRET}
-      DEFGUARD_SECRET_KEY: ${DEFGUARD_SECRET_KEY}
-      DEFGUARD_DEFAULT_ADMIN_PASSWORD: ${DEFGUARD_DEFAULT_ADMIN_PASSWORD}
-      DEFGUARD_DB_HOST: db
-      DEFGUARD_DB_PORT: 5432
-      DEFGUARD_DB_USER: defguard
-      DEFGUARD_DB_PASSWORD: ${DEFGUARD_DB_PASSWORD}
-      DEFGUARD_DB_NAME: defguard
-      DEFGUARD_URL: ${DEFGUARD_URL}
-      DEFGUARD_LOG_LEVEL: info
-      DEFGUARD_WEBAUTHN_RP_ID: ${DEFGUARD_WEBAUTHN_RP_ID}
-      DEFGUARD_COOKIE_INSECURE: ${DEFGUARD_COOKIE_INSECURE:-false}
-      # DEFGUARD_ENROLLMENT_URL: ${DEFGUARD_ENROLLMENT_URL}  # [ENROLLMENT]
-      # DEFGUARD_PROXY_URL: https://proxy:50052  # [ENROLLMENT]
-      # DEFGUARD_PROXY_GRPC_CA: /ssl/defguard-ca.pem  # [ENROLLMENT]
-      DEFGUARD_GRPC_CERT: /ssl/defguard-grpc.crt
-      DEFGUARD_GRPC_KEY: /ssl/defguard-grpc.key
-      ## RSA setup guide: https://docs.defguard.net/deployment-strategies/openid-rsa-key
-      DEFGUARD_OPENID_KEY: /keys/rsakey.pem
+      XGUARD_AUTH_SECRET: ${XGUARD_AUTH_SECRET}
+      XGUARD_GATEWAY_SECRET: ${XGUARD_GATEWAY_SECRET}
+      XGUARD_YUBIBRIDGE_SECRET: ${XGUARD_YUBIBRIDGE_SECRET}
+      XGUARD_SECRET_KEY: ${XGUARD_SECRET_KEY}
+      XGUARD_DEFAULT_ADMIN_PASSWORD: ${XGUARD_DEFAULT_ADMIN_PASSWORD}
+      XGUARD_DB_HOST: db
+      XGUARD_DB_PORT: 5432
+      XGUARD_DB_USER: xguard
+      XGUARD_DB_PASSWORD: ${XGUARD_DB_PASSWORD}
+      XGUARD_DB_NAME: xguard
+      XGUARD_URL: ${XGUARD_URL}
+      XGUARD_LOG_LEVEL: info
+      XGUARD_WEBAUTHN_RP_ID: ${XGUARD_WEBAUTHN_RP_ID}
+      XGUARD_COOKIE_INSECURE: ${XGUARD_COOKIE_INSECURE:-false}
+      # XGUARD_ENROLLMENT_URL: ${XGUARD_ENROLLMENT_URL}  # [ENROLLMENT]
+      # XGUARD_PROXY_URL: https://proxy:50052  # [ENROLLMENT]
+      # XGUARD_PROXY_GRPC_CA: /ssl/xguard-ca.pem  # [ENROLLMENT]
+      XGUARD_GRPC_CERT: /ssl/xguard-grpc.crt
+      XGUARD_GRPC_KEY: /ssl/xguard-grpc.key
+      ## RSA setup guide: https://docs.xguard.local/deployment-strategies/openid-rsa-key
+      XGUARD_OPENID_KEY: /keys/rsakey.pem
     ports:
       # web
       # - "8000:8000"
@@ -59,21 +59,21 @@ services:
     depends_on:
       - db
     volumes:
-      # SSL setup guide: https://docs.defguard.net/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
+      # SSL setup guide: https://docs.xguard.local/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
       - ${VOLUME_DIR:-./.volumes}/ssl:/ssl
-      ## RSA setup guide: https://docs.defguard.net/deployment-strategies/openid-rsa-key
+      ## RSA setup guide: https://docs.xguard.local/deployment-strategies/openid-rsa-key
       - ${VOLUME_DIR:-./.volumes}/core/rsakey.pem:/keys/rsakey.pem
 
   # proxy:  # [ENROLLMENT]
-  #   image: ghcr.io/defguard/defguard-proxy:${PROXY_IMAGE_TAG:-1.6}  # [ENROLLMENT]
+  #   image: ghcr.io/sajjad-alaa/xguard-proxy:${PROXY_IMAGE_TAG:-1.6}  # [ENROLLMENT]
   #   restart: unless-stopped  # [ENROLLMENT]
   #   environment:  # [ENROLLMENT]
-  #     DEFGUARD_PROXY_GRPC_PORT: 50052  # [ENROLLMENT]
-  #     DEFGUARD_PROXY_GRPC_CERT: /ssl/defguard-proxy-grpc.crt  # [ENROLLMENT]
-  #     DEFGUARD_PROXY_GRPC_KEY: /ssl/defguard-proxy-grpc.key  # [ENROLLMENT]
-  #     DEFGUARD_PROXY_URL: ${DEFGUARD_ENROLLMENT_URL}  # [ENROLLMENT]
+  #     XGUARD_PROXY_GRPC_PORT: 50052  # [ENROLLMENT]
+  #     XGUARD_PROXY_GRPC_CERT: /ssl/xguard-proxy-grpc.crt  # [ENROLLMENT]
+  #     XGUARD_PROXY_GRPC_KEY: /ssl/xguard-proxy-grpc.key  # [ENROLLMENT]
+  #     XGUARD_PROXY_URL: ${XGUARD_ENROLLMENT_URL}  # [ENROLLMENT]
   #   volumes:  # [ENROLLMENT]
-  # SSL setup guide: https://docs.defguard.net/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
+  # SSL setup guide: https://docs.xguard.local/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
   #     - ${VOLUME_DIR:-./.volumes}/ssl:/ssl  # [ENROLLMENT]
   #   ports:
   #     # web
@@ -82,18 +82,18 @@ services:
   #     - core  # [ENROLLMENT]
 
   # gateway:  # [VPN]
-  #   image: ghcr.io/defguard/gateway:${GATEWAY_IMAGE_TAG:-1.6}  # [VPN]
+  #   image: ghcr.io/sajjad-alaa/xguard-gateway:${GATEWAY_IMAGE_TAG:-1.6}  # [VPN]
   #   restart: unless-stopped  # [VPN]
   #   network_mode: "host"  # [VPN]
   #   environment:  # [VPN]
-  #     DEFGUARD_GRPC_URL: https://localhost:50055  # [VPN]
-  #     DEFGUARD_GRPC_CA: /ssl/defguard-ca.pem  # [VPN]
-  #     DEFGUARD_STATS_PERIOD: 30  # [VPN]
-  #     DEFGUARD_TOKEN: ${DEFGUARD_TOKEN}  # [VPN]
+  #     XGUARD_GRPC_URL: https://localhost:50055  # [VPN]
+  #     XGUARD_GRPC_CA: /ssl/xguard-ca.pem  # [VPN]
+  #     XGUARD_STATS_PERIOD: 30  # [VPN]
+  #     XGUARD_TOKEN: ${XGUARD_TOKEN}  # [VPN]
   ## This makes our rules run before Docker's rules to avoid conflicts
-  #     DEFGUARD_FW_PRIORITY: -1  # [VPN]
+  #     XGUARD_FW_PRIORITY: -1  # [VPN]
   #   volumes:  # [VPN]
-  # SSL setup guide: https://docs.defguard.net/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
+  # SSL setup guide: https://docs.xguard.local/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
   #     - ${VOLUME_DIR:-./.volumes}/ssl:/ssl  # [VPN]
   #   cap_add:  # [VPN]
   #     - NET_ADMIN  # [VPN]

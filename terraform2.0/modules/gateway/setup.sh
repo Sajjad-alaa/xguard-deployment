@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-LOG_FILE="/var/log/defguard.log"
+LOG_FILE="/var/log/xguard.log"
 
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
@@ -12,7 +12,7 @@ log "Installing prerequisites..."
 apt update
 apt install -y ca-certificates curl
 
-log "Adding the Defguard APT repository..."
+log "Adding the XGuard APT repository..."
 # The repo serves two suites: trixie (glibc >= 2.39, e.g. Ubuntu 24.04 / Debian 13) and
 # bookworm (older glibc, e.g. Ubuntu 22.04 / Debian 12). Pick the one matching this host to
 # avoid the known GLIBC_2.39 incompatibility.
@@ -22,24 +22,24 @@ case "$VERSION_CODENAME" in
     *) apt_dist="bookworm" ;;
 esac
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://apt.defguard.net/defguard.asc -o /etc/apt/keyrings/defguard.asc
-chmod a+r /etc/apt/keyrings/defguard.asc
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/defguard.asc] https://apt.defguard.net/ $apt_dist release-2.0" >/etc/apt/sources.list.d/defguard.list
+curl -fsSL https://apt.xguard.local/xguard.asc -o /etc/apt/keyrings/xguard.asc
+chmod a+r /etc/apt/keyrings/xguard.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/xguard.asc] https://apt.xguard.local/ $apt_dist release-2.0" >/etc/apt/sources.list.d/xguard.list
 apt update
 
-log "Installing defguard-gateway package..."
+log "Installing xguard-gateway package..."
 %{ if package_version != "" ~}
-apt install -y defguard-gateway=${package_version}
+apt install -y xguard-gateway=${package_version}
 %{ else ~}
-apt install -y defguard-gateway
+apt install -y xguard-gateway
 %{ endif ~}
 
 log "Ensuring certificate directory exists..."
-mkdir -p /etc/defguard/certs
+mkdir -p /etc/xguard/certs
 
-log "Writing gateway configuration to /etc/defguard/gateway.toml..."
-tee /etc/defguard/gateway.toml <<EOF
-# Defguard VPN gateway configuration (2.0)
+log "Writing gateway configuration to /etc/xguard/gateway.toml..."
+tee /etc/xguard/gateway.toml <<EOF
+# XGuard VPN gateway configuration (2.0)
 
 # Port the gRPC server listens on. Core connects here to adopt and manage the gateway.
 grpc_port = ${grpc_port}
@@ -50,7 +50,7 @@ stats_period = 30
 # Use userspace WireGuard implementation (e.g. wireguard-go)
 userspace = false
 # Directory where adoption-provisioned mTLS certificates are stored
-cert_dir = "/etc/defguard/certs"
+cert_dir = "/etc/xguard/certs"
 # Enable automatic masquerading of traffic by the firewall
 masquerade = ${nat}
 log_level = "${log_level}"
@@ -72,11 +72,11 @@ EOF
 log "Reloading systemd daemon to apply changes..."
 systemctl daemon-reload
 
-log "Enabling defguard-gateway service..."
-systemctl enable defguard-gateway
+log "Enabling xguard-gateway service..."
+systemctl enable xguard-gateway
 
-log "Starting defguard-gateway service..."
-systemctl start defguard-gateway
+log "Starting xguard-gateway service..."
+systemctl start xguard-gateway
 
 log "Setup completed."
 ) 2>&1 | tee -a "$LOG_FILE"

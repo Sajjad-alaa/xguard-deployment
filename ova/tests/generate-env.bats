@@ -15,15 +15,15 @@ teardown() {
   run bash "$FILES_DIR/generate-env.sh"
   [ "$status" -eq 0 ]
   [ -f "$STACK_DIR/.env" ]
-  grep -qx 'DEFGUARD_CORE_TAG=aaa' "$STACK_DIR/.env"
-  grep -qx 'DEFGUARD_PROXY_TAG=bbb' "$STACK_DIR/.env"
-  grep -qx 'DEFGUARD_GATEWAY_TAG=ccc' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_CORE_TAG=aaa' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_PROXY_TAG=bbb' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_GATEWAY_TAG=ccc' "$STACK_DIR/.env"
 }
 
 @test "db and postgres passwords match and are non-empty" {
   write_image_tags
   bash "$FILES_DIR/generate-env.sh"
-  dbp=$(grep '^DEFGUARD_DB_PASSWORD=' "$STACK_DIR/.env" | cut -d= -f2)
+  dbp=$(grep '^XGUARD_DB_PASSWORD=' "$STACK_DIR/.env" | cut -d= -f2)
   pgp=$(grep '^POSTGRES_PASSWORD=' "$STACK_DIR/.env" | cut -d= -f2)
   [ -n "$dbp" ]
   [ "$dbp" = "$pgp" ]
@@ -47,31 +47,31 @@ teardown() {
 @test "fails and writes nothing when .image-tags is missing" {
   run bash "$FILES_DIR/generate-env.sh"
   [ "$status" -ne 0 ]
-  [[ "$output" == *"DEFGUARD_CORE_TAG is required"* ]]
+  [[ "$output" == *"XGUARD_CORE_TAG is required"* ]]
   [ ! -f "$STACK_DIR/.env" ]
 }
 
 @test "no active-profiles -> full stack -> ADOPT_EDGE/ADOPT_GATEWAY defaulted" {
   write_image_tags
   bash "$FILES_DIR/generate-env.sh"
-  grep -qx 'DEFGUARD_ADOPT_EDGE=edge:50051' "$STACK_DIR/.env"
-  grep -qx 'DEFGUARD_ADOPT_GATEWAY=host.docker.internal:50066' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_EDGE=edge:50051' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_GATEWAY=host.docker.internal:50066' "$STACK_DIR/.env"
 }
 
 @test "active-profiles=core only -> ADOPT_EDGE/ADOPT_GATEWAY left blank" {
   echo "core" > "$STACK_DIR/active-profiles"
   write_image_tags
   bash "$FILES_DIR/generate-env.sh"
-  grep -qx 'DEFGUARD_ADOPT_EDGE=' "$STACK_DIR/.env"
-  grep -qx 'DEFGUARD_ADOPT_GATEWAY=' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_EDGE=' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_GATEWAY=' "$STACK_DIR/.env"
 }
 
 @test "active-profiles='core edge gateway' -> ADOPT_EDGE/ADOPT_GATEWAY defaulted" {
   printf 'core\nedge\ngateway\n' > "$STACK_DIR/active-profiles"
   write_image_tags
   bash "$FILES_DIR/generate-env.sh"
-  grep -qx 'DEFGUARD_ADOPT_EDGE=edge:50051' "$STACK_DIR/.env"
-  grep -qx 'DEFGUARD_ADOPT_GATEWAY=host.docker.internal:50066' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_EDGE=edge:50051' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_GATEWAY=host.docker.internal:50066' "$STACK_DIR/.env"
 }
 
 @test "segmented deployment marker suppresses all-in-one adoption defaults" {
@@ -79,16 +79,16 @@ teardown() {
   printf 'segmented\n' > "$INIT_DIR/.deployment-mode"
   write_image_tags
   bash "$FILES_DIR/generate-env.sh"
-  grep -qx 'DEFGUARD_ADOPT_EDGE=' "$STACK_DIR/.env"
-  grep -qx 'DEFGUARD_ADOPT_GATEWAY=' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_EDGE=' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_GATEWAY=' "$STACK_DIR/.env"
 }
 
 @test "active-profiles='core gateway' (no edge) -> ADOPT_EDGE/ADOPT_GATEWAY left blank" {
   printf 'core gateway\n' > "$STACK_DIR/active-profiles"
   write_image_tags
   bash "$FILES_DIR/generate-env.sh"
-  grep -qx 'DEFGUARD_ADOPT_EDGE=' "$STACK_DIR/.env"
-  grep -qx 'DEFGUARD_ADOPT_GATEWAY=' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_EDGE=' "$STACK_DIR/.env"
+  grep -qx 'XGUARD_ADOPT_GATEWAY=' "$STACK_DIR/.env"
 }
 
 @test "fails and writes nothing when lib.sh is missing" {

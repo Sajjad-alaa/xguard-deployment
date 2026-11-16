@@ -1,17 +1,17 @@
 services:
   proxy:
-    image: ghcr.io/defguard/defguard-proxy:latest
+    image: ghcr.io/sajjad-alaa/xguard-proxy:latest
     restart: unless-stopped
-    container_name: "defguard-proxy"
+    container_name: "xguard-proxy"
     ports:
       - "50051:50051"
     environment:
-      - DEFGUARD_PROXY_URL=<PROXY_GRPC_URL>
-      - DEFGUARD_LOG_LEVEL=info
+      - XGUARD_PROXY_URL=<PROXY_GRPC_URL>
+      - XGUARD_LOG_LEVEL=info
       # More info about securing gRPC communication here:
-      # https://docs.defguard.net/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
-      #- DEFGUARD_PROXY_GRPC_CERT=/certs/proxy.pem
-      #- DEFGUARD_PROXY_GRPC_KEY=/certs/proxy.key
+      # https://docs.xguard.local/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
+      #- XGUARD_PROXY_GRPC_CERT=/certs/proxy.pem
+      #- XGUARD_PROXY_GRPC_KEY=/certs/proxy.key
     # volumes:
     #   - ./proxy.pem:/certs/proxy.pem
     #   - ./proxy.key:/certs/proxy.key

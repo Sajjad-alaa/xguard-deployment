@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "xguard-gateway.fullname" . }}-config
+  labels:
+    {{- include "xguard-gateway.labels" . | nindent 4 }}
+data:
+  XGUARD_GRPC_PORT: {{ .Values.service.grpc.port | quote }}
+  XGUARD_LOG_LEVEL: {{ .Values.logLevel | quote }}
+  XGUARD_STATS_PERIOD: {{ .Values.statsPeriod | quote }}
+  XGUARD_USERSPACE: {{ .Values.userspace | quote }}

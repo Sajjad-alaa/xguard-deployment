@@ -1,15 +1,15 @@
 services:
   core:
-    image: ghcr.io/defguard/defguard:2
+    image: ghcr.io/sajjad-alaa/xguard-core:2
     environment:
-      DEFGUARD_COOKIE_INSECURE: "true"
-      DEFGUARD_DB_HOST: db
-      DEFGUARD_DB_PORT: 5432
-      DEFGUARD_DB_USER: defguard
-      DEFGUARD_DB_PASSWORD: defguard
-      DEFGUARD_DB_NAME: defguard
-      DEFGUARD_ADOPT_EDGE: "edge1:50051"
-      DEFGUARD_ADOPT_GATEWAY: "gateway1:50066"
+      XGUARD_COOKIE_INSECURE: "true"
+      XGUARD_DB_HOST: db
+      XGUARD_DB_PORT: 5432
+      XGUARD_DB_USER: xguard
+      XGUARD_DB_PASSWORD: xguard
+      XGUARD_DB_NAME: xguard
+      XGUARD_ADOPT_EDGE: "edge1:50051"
+      XGUARD_ADOPT_GATEWAY: "gateway1:50066"
     depends_on:
       - db
       - gateway-lb
@@ -18,14 +18,14 @@ services:
       - "8000:8000"
 
   edge1:
-    image: ghcr.io/defguard/defguard-proxy:2
+    image: ghcr.io/sajjad-alaa/xguard-proxy:2
     volumes:
-      - ./.volumes/certs2.0-ha/edge1:/etc/defguard/certs
+      - ./.volumes/certs2.0-ha/edge1:/etc/xguard/certs
 
   edge2:
-    image: ghcr.io/defguard/defguard-proxy:2
+    image: ghcr.io/sajjad-alaa/xguard-proxy:2
     volumes:
-      - ./.volumes/certs2.0-ha/edge2:/etc/defguard/certs
+      - ./.volumes/certs2.0-ha/edge2:/etc/xguard/certs
 
   edge-lb:
     image: nginx:1.25-alpine
@@ -38,23 +38,23 @@ services:
       - ./nginx/edge.conf:/etc/nginx/conf.d/default.conf:ro
 
   gateway1:
-    image: ghcr.io/defguard/gateway:2
+    image: ghcr.io/sajjad-alaa/xguard-gateway:2
     cap_add:
       - NET_ADMIN
     volumes:
-      - ./.volumes/certs2.0-ha/gateway1:/etc/defguard/certs
+      - ./.volumes/certs2.0-ha/gateway1:/etc/xguard/certs
     environment:
-      DEFGUARD_STATS_PERIOD: 10
+      XGUARD_STATS_PERIOD: 10
       HEALTH_PORT: 55003
 
   gateway2:
-    image: ghcr.io/defguard/gateway:2
+    image: ghcr.io/sajjad-alaa/xguard-gateway:2
     cap_add:
       - NET_ADMIN
     volumes:
-      - ./.volumes/certs2.0-ha/gateway2:/etc/defguard/certs
+      - ./.volumes/certs2.0-ha/gateway2:/etc/xguard/certs
     environment:
-      DEFGUARD_STATS_PERIOD: 10
+      XGUARD_STATS_PERIOD: 10
       HEALTH_PORT: 55003
 
   gateway-lb:
@@ -72,8 +72,8 @@ services:
   db:
     image: postgres:18-alpine
     environment:
-      POSTGRES_DB: defguard
-      POSTGRES_USER: defguard
-      POSTGRES_PASSWORD: defguard
+      POSTGRES_DB: xguard
+      POSTGRES_USER: xguard
+      POSTGRES_PASSWORD: xguard
     volumes:
       - ./.volumes/db2.0-ha:/var/lib/postgresql

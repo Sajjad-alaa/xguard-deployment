@@ -53,9 +53,9 @@ jobs:
             # published ?ref=main source. A Terraform override file merges into
             # the matching module blocks and replaces only their source.
             cat > "$example/ci_local_modules_override.tf" <<'EOF'
-          module "defguard_core" { source = "../../modules/core" }
-          module "defguard_edge" { source = "../../modules/edge" }
-          module "defguard_gateway" { source = "../../modules/gateway" }
+          module "xguard_core" { source = "../../modules/core" }
+          module "xguard_edge" { source = "../../modules/edge" }
+          module "xguard_gateway" { source = "../../modules/gateway" }
           module "network" { source = "../../modules/network" }
           EOF
             terraform -chdir="$example" init -backend=false -input=false

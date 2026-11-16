@@ -4,13 +4,13 @@ OVA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FILES_DIR="$OVA_DIR/files"
 STUB_DIR="$OVA_DIR/tests/stub"
 
-# DEFGUARD_STACK_DIR/DEFGUARD_INIT_DIR redirect the scripts at temp dirs.
+# XGUARD_STACK_DIR/XGUARD_INIT_DIR redirect the scripts at temp dirs.
 make_stack() {
   STACK_DIR="$(mktemp -d)"
   INIT_DIR="$STACK_DIR/init"
   mkdir -p "$INIT_DIR"
-  export DEFGUARD_STACK_DIR="$STACK_DIR"
-  export DEFGUARD_INIT_DIR="$INIT_DIR"
+  export XGUARD_STACK_DIR="$STACK_DIR"
+  export XGUARD_INIT_DIR="$INIT_DIR"
   cp "$FILES_DIR/docker-compose.template.yaml" "$INIT_DIR/"
   cp "$FILES_DIR/lib.sh" "$INIT_DIR/"
 }
@@ -23,9 +23,9 @@ teardown_stack() {
 # Bake image tags as the Packer build does; generate-env.sh sources this.
 write_image_tags() {
   cat > "$INIT_DIR/.image-tags" <<EOF
-DEFGUARD_CORE_TAG=${1:-test-core}
-DEFGUARD_PROXY_TAG=${2:-test-proxy}
-DEFGUARD_GATEWAY_TAG=${3:-test-gateway}
+XGUARD_CORE_TAG=${1:-test-core}
+XGUARD_PROXY_TAG=${2:-test-proxy}
+XGUARD_GATEWAY_TAG=${3:-test-gateway}
 EOF
 }
 
@@ -36,11 +36,11 @@ file_mode() {
 make_ova_home() {
   OVA_HOME="$(mktemp -d)"
   mkdir -p "$OVA_HOME/backups"
-  export DEFGUARD_OVA_DIR="$OVA_HOME"
-  export DEFGUARD_OVA_ALLOW_NONROOT=1
+  export XGUARD_OVA_DIR="$OVA_HOME"
+  export XGUARD_OVA_ALLOW_NONROOT=1
   # Keep tests from touching the host's systemd unit while exercising the
   # legacy-layout backup/upgrade path.
-  export DEFGUARD_INIT_SERVICE_FILE="$OVA_HOME/defguard-init.service"
+  export XGUARD_INIT_SERVICE_FILE="$OVA_HOME/xguard-init.service"
 }
 
 teardown_ova_home() {
@@ -88,19 +88,19 @@ seed_legacy_stack() {
   cat > "$STACK_DIR/docker-compose.yaml" <<'EOF'
 services:
   core:
-    image: ghcr.io/defguard/defguard:${DEFGUARD_CORE_TAG:?DEFGUARD_CORE_TAG is required}
+    image: ghcr.io/sajjad-alaa/xguard-core:${XGUARD_CORE_TAG:?XGUARD_CORE_TAG is required}
     env_file: .env
     environment:
-      DEFGUARD_DB_HOST: db
-      DEFGUARD_DB_PORT: 5432
-      DEFGUARD_ADOPT_EDGE: "edge:50051"
-      DEFGUARD_ADOPT_GATEWAY: "host.docker.internal:50066"
+      XGUARD_DB_HOST: db
+      XGUARD_DB_PORT: 5432
+      XGUARD_ADOPT_EDGE: "edge:50051"
+      XGUARD_ADOPT_GATEWAY: "host.docker.internal:50066"
     depends_on: [db, edge, gateway]
   edge:
-    image: ghcr.io/defguard/defguard-proxy:${DEFGUARD_PROXY_TAG:?DEFGUARD_PROXY_TAG is required}
+    image: ghcr.io/sajjad-alaa/xguard-proxy:${XGUARD_PROXY_TAG:?XGUARD_PROXY_TAG is required}
     ports: ["8080:8080", "443:443", "80:80"]
   gateway:
-    image: ghcr.io/defguard/gateway:${DEFGUARD_GATEWAY_TAG:?DEFGUARD_GATEWAY_TAG is required}
+    image: ghcr.io/sajjad-alaa/xguard-gateway:${XGUARD_GATEWAY_TAG:?XGUARD_GATEWAY_TAG is required}
     network_mode: host
   dockge:
     image: louislam/dockge:1
@@ -113,16 +113,16 @@ EOF
 services:
   core:
     profiles: [core]
-    image: ghcr.io/defguard/defguard:${DEFGUARD_CORE_TAG:?DEFGUARD_CORE_TAG is required}
+    image: ghcr.io/sajjad-alaa/xguard-core:${XGUARD_CORE_TAG:?XGUARD_CORE_TAG is required}
     env_file: .env
     depends_on: [db]
   edge:
     profiles: [edge]
-    image: ghcr.io/defguard/defguard-proxy:${DEFGUARD_PROXY_TAG:?DEFGUARD_PROXY_TAG is required}
+    image: ghcr.io/sajjad-alaa/xguard-proxy:${XGUARD_PROXY_TAG:?XGUARD_PROXY_TAG is required}
     ports: ["8080:8080", "50051:50051", "443:443", "80:80"]
   gateway:
     profiles: [gateway]
-    image: ghcr.io/defguard/gateway:${DEFGUARD_GATEWAY_TAG:?DEFGUARD_GATEWAY_TAG is required}
+    image: ghcr.io/sajjad-alaa/xguard-gateway:${XGUARD_GATEWAY_TAG:?XGUARD_GATEWAY_TAG is required}
     network_mode: host
   dockge:
     profiles: [dockge]
@@ -146,11 +146,11 @@ EOF
   fi
   mkdir -p "$STACK_DIR/.volumes/db"
   echo "seeded-db-file" > "$STACK_DIR/.volumes/db/marker"
-  cat > "$DEFGUARD_INIT_SERVICE_FILE" <<'EOF'
+  cat > "$XGUARD_INIT_SERVICE_FILE" <<'EOF'
 [Service]
 Type=oneshot
-ExecStart=/bin/bash /opt/stacks/defguard/generate-env.sh
-ExecStart=/bin/bash /opt/stacks/defguard/start.sh
+ExecStart=/bin/bash /opt/stacks/xguard/generate-env.sh
+ExecStart=/bin/bash /opt/stacks/xguard/start.sh
 EOF
 }
 
@@ -167,14 +167,14 @@ write_manifest() {
   "migrations": ${5:-[]}
 }
 EOF
-  export DEFGUARD_OVA_MANIFEST_URL="file://$STACK_DIR/manifest.json"
-  export DEFGUARD_OVA_SOURCE_DIR="$(cd "$OVA_DIR/.." && pwd)"
+  export XGUARD_OVA_MANIFEST_URL="file://$STACK_DIR/manifest.json"
+  export XGUARD_OVA_SOURCE_DIR="$(cd "$OVA_DIR/.." && pwd)"
 }
 
 # Copies the real ova/files/* alongside a fake migrations/<version>.sh so
-# do_upgrade's fetch_ova_file picks it up, and points DEFGUARD_OVA_SOURCE_DIR
+# do_upgrade's fetch_ova_file picks it up, and points XGUARD_OVA_SOURCE_DIR
 # at the copy. Caller must write_manifest with matching "migrations" first (or
-# after - only DEFGUARD_OVA_SOURCE_DIR needs to be set last).
+# after - only XGUARD_OVA_SOURCE_DIR needs to be set last).
 stage_migration() {
   local version="$1" body="$2"
   MIGRATION_SOURCE_DIR="$(mktemp -d)"
@@ -182,7 +182,7 @@ stage_migration() {
   cp "$FILES_DIR/docker-compose.template.yaml" "$FILES_DIR/lib.sh" "$FILES_DIR/generate-compose.sh" \
     "$MIGRATION_SOURCE_DIR/ova/files/"
   printf '%s\n' "$body" > "$MIGRATION_SOURCE_DIR/ova/files/migrations/$version.sh"
-  export DEFGUARD_OVA_SOURCE_DIR="$MIGRATION_SOURCE_DIR"
+  export XGUARD_OVA_SOURCE_DIR="$MIGRATION_SOURCE_DIR"
 }
 
 teardown_migration_source() {
@@ -193,8 +193,8 @@ teardown_migration_source() {
 # Minimal .env so compose interpolation of the *_TAG variables succeeds.
 write_env() {
   cat > "$STACK_DIR/.env" <<EOF
-DEFGUARD_CORE_TAG=${1:-test-core}
-DEFGUARD_PROXY_TAG=${2:-test-proxy}
-DEFGUARD_GATEWAY_TAG=${3:-test-gateway}
+XGUARD_CORE_TAG=${1:-test-core}
+XGUARD_PROXY_TAG=${2:-test-proxy}
+XGUARD_GATEWAY_TAG=${3:-test-gateway}
 EOF
 }

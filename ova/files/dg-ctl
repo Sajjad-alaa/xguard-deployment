@@ -1,11 +1,11 @@
 #!/bin/bash
-# defguard OVA maintenance CLI, installed as /opt/defguard/dg-ctl.
+# xguard OVA maintenance CLI, installed as /opt/xguard/dg-ctl.
 set -euo pipefail
 
 DG_CTL_VERSION="2.1.0"
 
-STACK_DIR="${DEFGUARD_STACK_DIR:-/opt/stacks/defguard}"
-OVA_DIR="${DEFGUARD_OVA_DIR:-/opt/defguard}"
+STACK_DIR="${XGUARD_STACK_DIR:-/opt/stacks/xguard}"
+OVA_DIR="${XGUARD_OVA_DIR:-/opt/xguard}"
 BACKUPS_DIR="$OVA_DIR/backups"
 STATE_FILE="$OVA_DIR/state.json"
 
@@ -16,11 +16,11 @@ APPLIED_PROFILES_FILE="$INIT_DIR/.applied-profiles"
 LEGACY_LAYOUT=0
 LEGACY_COMPOSE_MODE=""
 DEPLOYMENT_MODE="auto"
-INIT_SERVICE_FILE="${DEFGUARD_INIT_SERVICE_FILE:-/etc/systemd/system/defguard-init.service}"
+INIT_SERVICE_FILE="${XGUARD_INIT_SERVICE_FILE:-/etc/systemd/system/xguard-init.service}"
 
-OVA_REPO="${DEFGUARD_OVA_REPO:-DefGuard/deployment}"
-MANIFEST_URL="${DEFGUARD_OVA_MANIFEST_URL:-https://raw.githubusercontent.com/$OVA_REPO/main/ova/manifest.json}"
-SOURCE_DIR="${DEFGUARD_OVA_SOURCE_DIR:-}"
+OVA_REPO="${XGUARD_OVA_REPO:-XGuard/deployment}"
+MANIFEST_URL="${XGUARD_OVA_MANIFEST_URL:-https://raw.githubusercontent.com/$OVA_REPO/main/ova/manifest.json}"
+SOURCE_DIR="${XGUARD_OVA_SOURCE_DIR:-}"
 
 KEEP_BACKUPS="${KEEP_BACKUPS:-3}"
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-180}"
@@ -146,7 +146,7 @@ compose() {
 }
 
 need_root() {
-  [ "${DEFGUARD_OVA_ALLOW_NONROOT:-0}" = "1" ] && return 0
+  [ "${XGUARD_OVA_ALLOW_NONROOT:-0}" = "1" ] && return 0
   [ "$(id -u)" = "0" ] || die "must run as root (try: sudo $0 $*)"
 }
 
@@ -190,24 +190,24 @@ canonicalize_path() {
 }
 
 validate_safe_paths() {
-  [ ! -L "$STACK_DIR" ] || die "DEFGUARD_STACK_DIR may not be a symlink"
-  [ ! -L "$OVA_DIR" ] || die "DEFGUARD_OVA_DIR may not be a symlink"
+  [ ! -L "$STACK_DIR" ] || die "XGUARD_STACK_DIR may not be a symlink"
+  [ ! -L "$OVA_DIR" ] || die "XGUARD_OVA_DIR may not be a symlink"
 
   local stack_real ova_real
   stack_real="$(canonicalize_path "$STACK_DIR")" \
-    || die "DEFGUARD_STACK_DIR does not resolve to an existing directory"
+    || die "XGUARD_STACK_DIR does not resolve to an existing directory"
   ova_real="$(canonicalize_path "$OVA_DIR")" \
-    || die "DEFGUARD_OVA_DIR is not a valid path"
-  [ -d "$stack_real" ] || die "DEFGUARD_STACK_DIR is not a directory"
+    || die "XGUARD_OVA_DIR is not a valid path"
+  [ -d "$stack_real" ] || die "XGUARD_STACK_DIR is not a directory"
   [ ! -e "$OVA_DIR" ] || [ -d "$ova_real" ] \
-    || die "DEFGUARD_OVA_DIR is not a directory"
-  [ "$stack_real" != "/" ] || die "DEFGUARD_STACK_DIR may not resolve to /"
-  [ "$ova_real" != "/" ] || die "DEFGUARD_OVA_DIR may not resolve to /"
+    || die "XGUARD_OVA_DIR is not a directory"
+  [ "$stack_real" != "/" ] || die "XGUARD_STACK_DIR may not resolve to /"
+  [ "$ova_real" != "/" ] || die "XGUARD_OVA_DIR may not resolve to /"
   case "$stack_real/" in
-    "$ova_real/"*) die "DEFGUARD_STACK_DIR and DEFGUARD_OVA_DIR may not overlap" ;;
+    "$ova_real/"*) die "XGUARD_STACK_DIR and XGUARD_OVA_DIR may not overlap" ;;
   esac
   case "$ova_real/" in
-    "$stack_real/"*) die "DEFGUARD_STACK_DIR and DEFGUARD_OVA_DIR may not overlap" ;;
+    "$stack_real/"*) die "XGUARD_STACK_DIR and XGUARD_OVA_DIR may not overlap" ;;
   esac
 
   STACK_DIR="$stack_real"
@@ -225,7 +225,7 @@ validate_safe_paths() {
 
 need_stack() {
   detect_stack_layout
-  [ -f "$COMPOSE_FILE" ] || die "$COMPOSE_FILE not found; this does not look like a defguard OVA host"
+  [ -f "$COMPOSE_FILE" ] || die "$COMPOSE_FILE not found; this does not look like a xguard OVA host"
   [ -f "$ENV_FILE" ] || die "$ENV_FILE not found"
   docker compose version >/dev/null 2>&1 || die "docker compose v2 is not available"
   command -v jq >/dev/null 2>&1 || die "jq is required"
@@ -637,8 +637,8 @@ do_backup() {
   printf '%s\n' "$profiles" > "$dir/applied-profiles"
   init_service_sha=""
   if [ -f "$INIT_SERVICE_FILE" ]; then
-    cp "$INIT_SERVICE_FILE" "$dir/defguard-init.service"
-    init_service_sha="$(sha256sum "$dir/defguard-init.service" | awk '{print $1}')"
+    cp "$INIT_SERVICE_FILE" "$dir/xguard-init.service"
+    init_service_sha="$(sha256sum "$dir/xguard-init.service" | awk '{print $1}')"
   fi
 
   jq -n \
@@ -648,9 +648,9 @@ do_backup() {
     --arg created "$(date -u +%FT%TZ)" \
     --arg host "$(hostname)" \
     --arg ova_version "$(state_value ova_version)" \
-    --arg core "$(env_value DEFGUARD_CORE_TAG)" \
-    --arg proxy "$(env_value DEFGUARD_PROXY_TAG)" \
-    --arg gateway "$(env_value DEFGUARD_GATEWAY_TAG)" \
+    --arg core "$(env_value XGUARD_CORE_TAG)" \
+    --arg proxy "$(env_value XGUARD_PROXY_TAG)" \
+    --arg gateway "$(env_value XGUARD_GATEWAY_TAG)" \
     --arg volumes_sha "$volumes_sha" \
     --arg stack_sha "$stack_sha" \
     --arg ova_sha "$ova_sha" \
@@ -756,11 +756,11 @@ verify_backup() {
     local init_service_sha
     init_service_sha="$(jq -r '.init_service_sha256 // ""' "$dir/meta.json")"
     if [ -n "$init_service_sha" ]; then
-      [ -f "$dir/defguard-init.service" ] \
-        || die "backup $id is incomplete: missing defguard-init.service"
-      have="$(sha256sum "$dir/defguard-init.service" | awk '{print $1}')"
+      [ -f "$dir/xguard-init.service" ] \
+        || die "backup $id is incomplete: missing xguard-init.service"
+      have="$(sha256sum "$dir/xguard-init.service" | awk '{print $1}')"
       [ "$init_service_sha" = "$have" ] \
-        || die "backup $id is corrupt: defguard-init.service checksum mismatch"
+        || die "backup $id is corrupt: xguard-init.service checksum mismatch"
     fi
   fi
 }
@@ -768,7 +768,7 @@ verify_backup() {
 install_init_service() {
   local src="$1"
   mkdir -p "$(dirname "$INIT_SERVICE_FILE")"
-  if [ "$INIT_SERVICE_FILE" = "/etc/systemd/system/defguard-init.service" ]; then
+  if [ "$INIT_SERVICE_FILE" = "/etc/systemd/system/xguard-init.service" ]; then
     atomic_install "$src" "$INIT_SERVICE_FILE" 644 root root \
       || die "could not install $INIT_SERVICE_FILE"
   else
@@ -778,9 +778,9 @@ install_init_service() {
 }
 
 reload_init_service() {
-  [ "$INIT_SERVICE_FILE" = "/etc/systemd/system/defguard-init.service" ] || return 0
-  command -v systemctl >/dev/null 2>&1 || die "systemctl is required to reload defguard-init.service"
-  systemctl daemon-reload || die "could not reload systemd after changing defguard-init.service"
+  [ "$INIT_SERVICE_FILE" = "/etc/systemd/system/xguard-init.service" ] || return 0
+  command -v systemctl >/dev/null 2>&1 || die "systemctl is required to reload xguard-init.service"
+  systemctl daemon-reload || die "could not reload systemd after changing xguard-init.service"
 }
 
 restore_image_digests() {
@@ -878,7 +878,7 @@ restore_backup() {
     local init_service_sha
     init_service_sha="$(jq -r '.init_service_sha256 // ""' "$dir/meta.json")"
     if [ -n "$init_service_sha" ]; then
-      install_init_service "$dir/defguard-init.service"
+      install_init_service "$dir/xguard-init.service"
       reload_init_service
     fi
   fi
@@ -914,7 +914,7 @@ do_rollback() {
   elif do_test; then
     log "rollback to $id complete and healthy"
   else
-    die "rollback to $id restored the stack but health checks failed; inspect with: journalctl -t defguard-core"
+    die "rollback to $id restored the stack but health checks failed; inspect with: journalctl -t xguard-core"
   fi
 }
 
@@ -966,7 +966,7 @@ core_health() { curl -fsS http://localhost:8000/api/v1/health >/dev/null 2>&1; }
 db_ready() {
   local user
   user="$(env_value POSTGRES_USER)"
-  compose exec -T db pg_isready -U "${user:-defguard}" >/dev/null 2>&1
+  compose exec -T db pg_isready -U "${user:-xguard}" >/dev/null 2>&1
 }
 
 # 50051 is only published in segmented deployments.
@@ -990,7 +990,7 @@ no_fatal_logs() {
   if started="$(service_started_at "$svc")" && [ -n "$started" ]; then
     since="$started"
   fi
-  logs="$(journalctl -t "defguard-$svc" --since "$since" --no-pager 2>/dev/null)" || return 1
+  logs="$(journalctl -t "xguard-$svc" --since "$since" --no-pager 2>/dev/null)" || return 1
   ! grep -Eq 'FATAL|panicked at|thread .* panicked' <<<"$logs"
 }
 
@@ -1131,9 +1131,9 @@ do_upgrade() {
   : "${proxy_tag:=$(jq -r '.proxy_tag // empty' <<<"$manifest")}"
   : "${gateway_tag:=$(jq -r '.gateway_tag // empty' <<<"$manifest")}"
   valid_ref "$ref" || die "invalid template ref: $ref"
-  valid_tag "$core_tag" || die "invalid Docker image tag for DEFGUARD_CORE_TAG: $core_tag"
-  valid_tag "$proxy_tag" || die "invalid Docker image tag for DEFGUARD_PROXY_TAG: $proxy_tag"
-  valid_tag "$gateway_tag" || die "invalid Docker image tag for DEFGUARD_GATEWAY_TAG: $gateway_tag"
+  valid_tag "$core_tag" || die "invalid Docker image tag for XGUARD_CORE_TAG: $core_tag"
+  valid_tag "$proxy_tag" || die "invalid Docker image tag for XGUARD_PROXY_TAG: $proxy_tag"
+  valid_tag "$gateway_tag" || die "invalid Docker image tag for XGUARD_GATEWAY_TAG: $gateway_tag"
 
   if [ -f "$STATE_FILE" ]; then
     jq -e 'type == "object" and (.ova_version? | type == "string")' "$STATE_FILE" \
@@ -1180,9 +1180,9 @@ do_upgrade() {
   layout:    $layout
   mode:      $deployment_mode
   template:  $resolved_ref (from $OVA_REPO)
-  core:      $(env_value DEFGUARD_CORE_TAG) -> $core_tag
-  proxy:     $(env_value DEFGUARD_PROXY_TAG) -> $proxy_tag
-  gateway:   $(env_value DEFGUARD_GATEWAY_TAG) -> $gateway_tag
+  core:      $(env_value XGUARD_CORE_TAG) -> $core_tag
+  proxy:     $(env_value XGUARD_PROXY_TAG) -> $proxy_tag
+  gateway:   $(env_value XGUARD_GATEWAY_TAG) -> $gateway_tag
   version:   $(state_value ova_version) -> $ova_version
 EOF
   if [ "$assume_yes" != 1 ]; then
@@ -1196,7 +1196,7 @@ EOF
   local staged_stack="$work/staged-stack"
   local new_env="$work/.env"
   local staged_compose="$staged_stack/docker-compose.yml"
-  local new_service="$work/defguard-init.service"
+  local new_service="$work/xguard-init.service"
   mkdir -p "$new_init"
   printf '%s\n' "$deployment_mode" > "$new_init/.deployment-mode"
 
@@ -1212,12 +1212,12 @@ EOF
   if [ "$was_legacy" = 1 ]; then
     fetch_ova_file "$resolved_ref" generate-env.sh "$new_init/generate-env.sh" \
       || die "could not fetch ova/files/generate-env.sh at ref $resolved_ref"
-    fetch_ova_file "$resolved_ref" defguard-init.service "$new_service" \
-      || die "could not fetch ova/files/defguard-init.service at ref $resolved_ref"
+    fetch_ova_file "$resolved_ref" xguard-init.service "$new_service" \
+      || die "could not fetch ova/files/xguard-init.service at ref $resolved_ref"
     bash -n "$new_init/generate-env.sh" \
       || die "fetched ova/files/generate-env.sh does not parse"
-    grep -Fq '/opt/stacks/defguard/init/generate-compose.sh' "$new_service" \
-      || die "fetched defguard-init.service does not use the simplified init layout"
+    grep -Fq '/opt/stacks/xguard/init/generate-compose.sh' "$new_service" \
+      || die "fetched xguard-init.service does not use the simplified init layout"
   fi
 
   local -a pending_migrations
@@ -1234,14 +1234,14 @@ EOF
   fi
 
   cp "$ENV_FILE" "$new_env"
-  set_env_tag "$new_env" DEFGUARD_CORE_TAG "$core_tag"
-  set_env_tag "$new_env" DEFGUARD_PROXY_TAG "$proxy_tag"
-  set_env_tag "$new_env" DEFGUARD_GATEWAY_TAG "$gateway_tag"
+  set_env_tag "$new_env" XGUARD_CORE_TAG "$core_tag"
+  set_env_tag "$new_env" XGUARD_PROXY_TAG "$proxy_tag"
+  set_env_tag "$new_env" XGUARD_GATEWAY_TAG "$gateway_tag"
   if [ "$was_legacy" = 1 ] && [ "$deployment_mode" = full ]; then
     # The old all-in-one Compose file hard-coded these values; they were not
     # present in its .env and would otherwise become empty in the new template.
-    set_env_value "$new_env" DEFGUARD_ADOPT_EDGE edge:50051
-    set_env_value "$new_env" DEFGUARD_ADOPT_GATEWAY host.docker.internal:50066
+    set_env_value "$new_env" XGUARD_ADOPT_EDGE edge:50051
+    set_env_value "$new_env" XGUARD_ADOPT_GATEWAY host.docker.internal:50066
   fi
   chmod 600 "$new_env"
 
@@ -1265,8 +1265,8 @@ EOF
   if has_profile dockge "${profiles[@]}"; then
     touch "$staged_stack/enable-docker-management"
   fi
-  DEFGUARD_DEPLOYMENT_MODE="$deployment_mode" \
-    DEFGUARD_STACK_DIR="$staged_stack" DEFGUARD_INIT_DIR="$new_init" \
+  XGUARD_DEPLOYMENT_MODE="$deployment_mode" \
+    XGUARD_STACK_DIR="$staged_stack" XGUARD_INIT_DIR="$new_init" \
     bash "$new_init/generate-compose.sh" \
     || die "compose generation failed for ref $resolved_ref; nothing was changed"
   [ -f "$staged_compose" ] || die "compose generator produced no docker-compose.yml"
@@ -1302,12 +1302,12 @@ EOF
     # those changes; the target image tags remain authoritative.
     log "refreshing staged environment after migrations"
     cp "$ENV_FILE" "$new_env"
-    set_env_tag "$new_env" DEFGUARD_CORE_TAG "$core_tag"
-    set_env_tag "$new_env" DEFGUARD_PROXY_TAG "$proxy_tag"
-    set_env_tag "$new_env" DEFGUARD_GATEWAY_TAG "$gateway_tag"
+    set_env_tag "$new_env" XGUARD_CORE_TAG "$core_tag"
+    set_env_tag "$new_env" XGUARD_PROXY_TAG "$proxy_tag"
+    set_env_tag "$new_env" XGUARD_GATEWAY_TAG "$gateway_tag"
     if [ "$was_legacy" = 1 ] && [ "$deployment_mode" = full ]; then
-      set_env_value "$new_env" DEFGUARD_ADOPT_EDGE edge:50051
-      set_env_value "$new_env" DEFGUARD_ADOPT_GATEWAY host.docker.internal:50066
+      set_env_value "$new_env" XGUARD_ADOPT_EDGE edge:50051
+      set_env_value "$new_env" XGUARD_ADOPT_GATEWAY host.docker.internal:50066
     fi
     chmod 600 "$new_env"
     cp "$new_env" "$staged_stack/.env"
@@ -1321,8 +1321,8 @@ EOF
     if has_profile dockge "${profiles[@]}"; then
       touch "$staged_stack/enable-docker-management"
     fi
-    DEFGUARD_DEPLOYMENT_MODE="$deployment_mode" \
-      DEFGUARD_STACK_DIR="$staged_stack" DEFGUARD_INIT_DIR="$new_init" \
+    XGUARD_DEPLOYMENT_MODE="$deployment_mode" \
+      XGUARD_STACK_DIR="$staged_stack" XGUARD_INIT_DIR="$new_init" \
       bash "$new_init/generate-compose.sh" \
       || die "compose regeneration after migrations failed; nothing was changed"
     docker compose -f "$staged_compose" --project-directory "$staged_stack" \
@@ -1360,7 +1360,7 @@ EOF
 
   log "installing upgraded init assets"
   local image_tags_tmp="$WORK_DIR/image-tags"
-  printf 'DEFGUARD_CORE_TAG=%s\nDEFGUARD_PROXY_TAG=%s\nDEFGUARD_GATEWAY_TAG=%s\n' \
+  printf 'XGUARD_CORE_TAG=%s\nXGUARD_PROXY_TAG=%s\nXGUARD_GATEWAY_TAG=%s\n' \
     "$core_tag" "$proxy_tag" "$gateway_tag" > "$image_tags_tmp"
   chmod 640 "$image_tags_tmp"
   atomic_install "$new_init/docker-compose.template.yaml" "$INIT_DIR/docker-compose.template.yaml" 640
@@ -1411,9 +1411,9 @@ do_version() {
   echo "dg-ctl cli:   $DG_CTL_VERSION"
   echo "ova version:    $(state_value ova_version)"
   echo "template ref:   $(state_value template_ref)"
-  echo "core tag:       $(env_value DEFGUARD_CORE_TAG)"
-  echo "proxy tag:      $(env_value DEFGUARD_PROXY_TAG)"
-  echo "gateway tag:    $(env_value DEFGUARD_GATEWAY_TAG)"
+  echo "core tag:       $(env_value XGUARD_CORE_TAG)"
+  echo "proxy tag:      $(env_value XGUARD_PROXY_TAG)"
+  echo "gateway tag:    $(env_value XGUARD_GATEWAY_TAG)"
   local applied
   applied="$(jq -r '.migrations_applied // [] | join(", ")' "$STATE_FILE" 2>/dev/null)" || applied=""
   [ -n "$applied" ] && echo "migrations:     $applied"
@@ -1459,8 +1459,8 @@ usage: dg-ctl <command> [options]
   help                  this text
 
 environment:
-  DEFGUARD_OVA_MANIFEST_URL  release manifest (default: $OVA_REPO@main)
-  DEFGUARD_OVA_SOURCE_DIR    take ova/files/* from a local checkout
+  XGUARD_OVA_MANIFEST_URL  release manifest (default: $OVA_REPO@main)
+  XGUARD_OVA_SOURCE_DIR    take ova/files/* from a local checkout
   KEEP_BACKUPS               backups to keep after an upgrade (default 3)
   FETCH_CONNECT_TIMEOUT      network connection timeout in seconds (default 10)
   FETCH_TIMEOUT              network transfer timeout in seconds (default 60)

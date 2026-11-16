@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LOG_FILE="/var/log/defguard-postgres.log"
+LOG_FILE="/var/log/xguard-postgres.log"
 
 log() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
@@ -34,7 +34,7 @@ for _ in $(seq 1 30); do
 done
 sudo -u postgres pg_isready -q
 
-log "Creating Defguard database and role..."
+log "Creating XGuard database and role..."
 sudo -u postgres psql --set=ON_ERROR_STOP=1 \
   --set=db_name="${db_name}" \
   --set=db_username="${db_username}" \

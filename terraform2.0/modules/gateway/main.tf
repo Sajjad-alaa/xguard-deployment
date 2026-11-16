@@ -1,4 +1,4 @@
-resource "aws_instance" "defguard_gateway" {
+resource "aws_instance" "xguard_gateway" {
   ami           = var.ami
   instance_type = var.instance_type
   key_name      = var.key_name
@@ -16,6 +16,6 @@ resource "aws_instance" "defguard_gateway" {
   }
 
   tags = {
-    Name = "defguard-gateway-instance"
+    Name = "xguard-gateway-instance"
   }
 }

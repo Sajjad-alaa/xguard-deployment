@@ -72,7 +72,7 @@ wait_for_health() {
   bring_up
   wait_for_health
 
-  psql() { sudo docker compose -f "$STACK_DIR/docker-compose.yml" exec -T db psql -qtAX -U defguard -d defguard "$@"; }
+  psql() { sudo docker compose -f "$STACK_DIR/docker-compose.yml" exec -T db psql -qtAX -U xguard -d xguard "$@"; }
   psql -c "CREATE TABLE ova_upgrade_probe (v text); INSERT INTO ova_upgrade_probe VALUES ('survived');"
 
   OVA_HOME="$(mktemp -d)"
@@ -87,11 +87,11 @@ wait_for_health() {
 EOF
 
   sudo env \
-    "DEFGUARD_STACK_DIR=$STACK_DIR" \
-    "DEFGUARD_OVA_DIR=$OVA_HOME" \
-    "DEFGUARD_OVA_MANIFEST_URL=file://$OVA_HOME/manifest.json" \
-    "DEFGUARD_OVA_SOURCE_DIR=$(cd "$OVA_DIR/.." && pwd)" \
-    "DEFGUARD_INIT_SERVICE_FILE=$OVA_HOME/defguard-init.service" \
+    "XGUARD_STACK_DIR=$STACK_DIR" \
+    "XGUARD_OVA_DIR=$OVA_HOME" \
+    "XGUARD_OVA_MANIFEST_URL=file://$OVA_HOME/manifest.json" \
+    "XGUARD_OVA_SOURCE_DIR=$(cd "$OVA_DIR/.." && pwd)" \
+    "XGUARD_INIT_SERVICE_FILE=$OVA_HOME/xguard-init.service" \
     bash "$FILES_DIR/dg-ctl" upgrade --yes
 
   [ "$(psql -c 'SELECT v FROM ova_upgrade_probe;' | tr -d '[:space:]')" = "survived" ]

@@ -10,7 +10,7 @@ variable "instance_type" {
 }
 
 variable "grpc_port" {
-  description = "Port the Defguard Gateway gRPC server listens on (Core dials this)"
+  description = "Port the XGuard Gateway gRPC server listens on (Core dials this)"
   type        = number
   default     = 50066
 }
@@ -21,7 +21,7 @@ variable "network_interface_id" {
 }
 
 variable "package_version" {
-  description = "Version of the Defguard Gateway package to install (e.g. \"2.0.1\"). Leave empty to install the latest version available in the APT repository."
+  description = "Version of the XGuard Gateway package to install (e.g. \"2.0.1\"). Leave empty to install the latest version available in the APT repository."
   type        = string
   default     = ""
 }
@@ -39,7 +39,7 @@ variable "key_name" {
 }
 
 variable "log_level" {
-  description = "Log level for Defguard Gateway. Possible values: trace, debug, info, warn, error"
+  description = "Log level for XGuard Gateway. Possible values: trace, debug, info, warn, error"
   type        = string
   default     = "info"
 }

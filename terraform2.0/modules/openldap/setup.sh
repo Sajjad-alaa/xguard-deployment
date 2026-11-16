@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LOG_FILE="/var/log/defguard-openldap.log"
+LOG_FILE="/var/log/xguard-openldap.log"
 
 log() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') $1"

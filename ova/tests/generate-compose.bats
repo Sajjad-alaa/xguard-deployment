@@ -151,9 +151,9 @@ generated_json() {
 @test "image tags stay live \${VAR} refs, not baked-in literal tags" {
   run bash "$FILES_DIR/generate-compose.sh"
   [ "$status" -eq 0 ]
-  grep -q 'image: ghcr.io/defguard/defguard:${DEFGUARD_CORE_TAG}' "$STACK_DIR/docker-compose.yml"
-  grep -q 'image: ghcr.io/defguard/defguard-proxy:${DEFGUARD_PROXY_TAG}' "$STACK_DIR/docker-compose.yml"
-  grep -q 'image: ghcr.io/defguard/gateway:${DEFGUARD_GATEWAY_TAG}' "$STACK_DIR/docker-compose.yml"
+  grep -q 'image: ghcr.io/sajjad-alaa/xguard-core:${XGUARD_CORE_TAG}' "$STACK_DIR/docker-compose.yml"
+  grep -q 'image: ghcr.io/sajjad-alaa/xguard-proxy:${XGUARD_PROXY_TAG}' "$STACK_DIR/docker-compose.yml"
+  grep -q 'image: ghcr.io/sajjad-alaa/xguard-gateway:${XGUARD_GATEWAY_TAG}' "$STACK_DIR/docker-compose.yml"
   ! grep 'image:' "$STACK_DIR/docker-compose.yml" | grep -q 'test-core\|test-proxy\|test-gateway'
 }
 
@@ -162,5 +162,5 @@ generated_json() {
   [ "$status" -eq 0 ]
   write_env new-core-tag new-proxy-tag new-gateway-tag
   image="$(unset COMPOSE_PROFILES; docker compose -f "$STACK_DIR/docker-compose.yml" --project-directory "$STACK_DIR" config --format json | jq -r '.services.core.image')"
-  [ "$image" = "ghcr.io/defguard/defguard:new-core-tag" ]
+  [ "$image" = "ghcr.io/sajjad-alaa/xguard-core:new-core-tag" ]
 }

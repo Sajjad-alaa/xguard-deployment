@@ -34,32 +34,32 @@ log "Waiting for gateway and edge gRPC servers to become reachable..."
 wait_for_port "${gateway_address}" "${gateway_grpc_port}" 60 || log "WARNING: gateway is not reachable; auto-adoption may fail"
 wait_for_port "${edge_address}" "${edge_grpc_port}" 60 || log "WARNING: edge is not reachable; auto-adoption may fail"
 
-install -d -m 0755 /opt/defguard-core
-cat > /opt/defguard-core/docker-compose.yaml <<'COMPOSE'
+install -d -m 0755 /opt/xguard-core
+cat > /opt/xguard-core/docker-compose.yaml <<'COMPOSE'
 services:
   core:
     image: ${image}
     restart: unless-stopped
     environment:
-      DEFGUARD_GRPC_PORT: "${grpc_port}"
-      DEFGUARD_HTTP_PORT: "${http_port}"
-      DEFGUARD_HTTP_BIND_ADDRESS: "0.0.0.0"
-      DEFGUARD_GRPC_BIND_ADDRESS: "0.0.0.0"
-      DEFGUARD_COOKIE_INSECURE: "${cookie_insecure}"
-      DEFGUARD_LOG_LEVEL: "${log_level}"
-      DEFGUARD_ADOPT_GATEWAY: "${gateway_address}:${gateway_grpc_port}"
-      DEFGUARD_ADOPT_EDGE: "${edge_address}:${edge_grpc_port}"
-      DEFGUARD_DB_HOST: "${db_address}"
-      DEFGUARD_DB_PORT: "${db_port}"
-      DEFGUARD_DB_NAME: "${db_name}"
-      DEFGUARD_DB_USER: "${db_username}"
-      DEFGUARD_DB_PASSWORD: "${db_password}"
-      DEFGUARD_DB_POOL_SIZE: 50
+      XGUARD_GRPC_PORT: "${grpc_port}"
+      XGUARD_HTTP_PORT: "${http_port}"
+      XGUARD_HTTP_BIND_ADDRESS: "0.0.0.0"
+      XGUARD_GRPC_BIND_ADDRESS: "0.0.0.0"
+      XGUARD_COOKIE_INSECURE: "${cookie_insecure}"
+      XGUARD_LOG_LEVEL: "${log_level}"
+      XGUARD_ADOPT_GATEWAY: "${gateway_address}:${gateway_grpc_port}"
+      XGUARD_ADOPT_EDGE: "${edge_address}:${edge_grpc_port}"
+      XGUARD_DB_HOST: "${db_address}"
+      XGUARD_DB_PORT: "${db_port}"
+      XGUARD_DB_NAME: "${db_name}"
+      XGUARD_DB_USER: "${db_username}"
+      XGUARD_DB_PASSWORD: "${db_password}"
+      XGUARD_DB_POOL_SIZE: 50
     ports:
       - "${http_port}:${http_port}"
       - "${grpc_port}:${grpc_port}"
 COMPOSE
-chmod 600 /opt/defguard-core/docker-compose.yaml
+chmod 600 /opt/xguard-core/docker-compose.yaml
 
-docker compose -f /opt/defguard-core/docker-compose.yaml pull
-docker compose -f /opt/defguard-core/docker-compose.yaml up -d
+docker compose -f /opt/xguard-core/docker-compose.yaml pull
+docker compose -f /opt/xguard-core/docker-compose.yaml up -d

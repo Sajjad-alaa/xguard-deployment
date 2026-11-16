@@ -1,0 +1,8 @@
+apiVersion: v2
+name: xguard-proxy
+description: XGuard Edge is a public-facing proxy for XGuard Core.
+icon: https://xguard.local/favicon/favicon-512x512.png
+
+type: application
+version: 2.2.0
+appVersion: 2.2.0

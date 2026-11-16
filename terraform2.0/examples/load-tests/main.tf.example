@@ -1,4 +1,4 @@
-# Deploy Defguard 2.1 into a NEW, self-contained VPC for load testing.
+# Deploy XGuard 2.1 into a NEW, self-contained VPC for load testing.
 #
 # This example creates everything from scratch: a VPC with public/private subnets and a NAT
 # gateway, the security groups, network interfaces, EIPs and the RDS database (via the shared
@@ -11,7 +11,7 @@
 locals {
   ############################ AWS configuration ############################
 
-  # The AWS region where the Defguard infrastructure will be deployed.
+  # The AWS region where the XGuard infrastructure will be deployed.
   region = "eu-west-3"
 
   ############################ SSH / access configuration ###################
@@ -26,44 +26,44 @@ locals {
 
   ############################ Core configuration ###########################
 
-  # The gRPC port for the Defguard Core.
+  # The gRPC port for the XGuard Core.
   core_grpc_port = 50055
 
-  # The HTTP(S) port for the Defguard Core web UI.
+  # The HTTP(S) port for the XGuard Core web UI.
   core_http_port = 8000
 
-  # Whether to allow insecure cookies for the Defguard Core web UI. Set to true if you
-  # are using HTTP to access the Defguard Core web UI.
+  # Whether to allow insecure cookies for the XGuard Core web UI. Set to true if you
+  # are using HTTP to access the XGuard Core web UI.
   core_cookie_insecure = false
 
-  # The architecture of the Defguard Core server instance.
+  # The architecture of the XGuard Core server instance.
   # Supported values: "x86_64", "aarch64"
   core_arch = "x86_64"
 
-  # The instance type for the Defguard Core server.
+  # The instance type for the XGuard Core server.
   core_instance_type = "m7i.xlarge"
 
   ############################ Edge configuration ###########################
 
-  # The gRPC port the Defguard Edge listens on. Core dials this to adopt and manage the edge.
+  # The gRPC port the XGuard Edge listens on. Core dials this to adopt and manage the edge.
   edge_grpc_port = 50051
 
-  # The HTTP port the Defguard Edge listens on for enrollment and client communication.
+  # The HTTP port the XGuard Edge listens on for enrollment and client communication.
   edge_http_port = 8080
 
-  # The HTTPS port the Defguard Edge listens on (used after Core provisions TLS).
+  # The HTTPS port the XGuard Edge listens on (used after Core provisions TLS).
   edge_https_port = 443
 
-  # The architecture of the Defguard Edge server instance.
+  # The architecture of the XGuard Edge server instance.
   # Supported values: "x86_64", "aarch64"
   edge_arch = "x86_64"
 
-  # The instance type for the Defguard Edge server.
+  # The instance type for the XGuard Edge server.
   edge_instance_type = "m7i.xlarge"
 
   ###################### VPN and Gateway configuration ######################
 
-  # The gRPC port the Defguard Gateway listens on. Core dials this to adopt and manage
+  # The gRPC port the XGuard Gateway listens on. Core dials this to adopt and manage
   # the gateway (initial adoption and the ongoing control stream).
   gateway_grpc_port = 50066
 
@@ -75,29 +75,29 @@ locals {
   # internet and other resources through the gateway.
   gateway_nat = true
 
-  # Pin the Defguard Gateway deb package version. Load tests use the released 2.1.0 package.
+  # Pin the XGuard Gateway deb package version. Load tests use the released 2.1.0 package.
   gateway_package_version = "2.1.0"
 
-  # The architecture of the Defguard Gateway server instance.
+  # The architecture of the XGuard Gateway server instance.
   # Supported values: "x86_64", "aarch64"
   gateway_arch = "x86_64"
 
-  # The instance type for the Defguard Gateway server.
+  # The instance type for the XGuard Gateway server.
   gateway_instance_type = "m7i.xlarge"
 
   ########################## Database configuration #########################
 
-  # The name of the database that will be created for the Defguard Core.
-  db_name = "defguard"
+  # The name of the database that will be created for the XGuard Core.
+  db_name = "xguard"
 
-  # The username for the database that will be created for the Defguard Core.
-  db_username = "defguard"
+  # The username for the database that will be created for the XGuard Core.
+  db_username = "xguard"
 
   # The port on which the database will listen for incoming connections.
   db_port = 5432
 
-  # The password for the database user. This will be used by the Defguard Core to connect to the database.
-  db_password = "defguard"
+  # The password for the database user. This will be used by the XGuard Core to connect to the database.
+  db_password = "xguard"
 
   # Self-managed PostgreSQL runs on a dedicated private EC2 instance.
   postgres_instance_type = "m7i.xlarge"
@@ -107,8 +107,8 @@ locals {
   openldap_instance_type = "t3.small"
   openldap_storage_gb    = 20
   ldap_domain            = "example.com"
-  ldap_organization      = "Defguard Load Tests"
-  ldap_admin_password    = "defguard-ldap"
+  ldap_organization      = "XGuard Load Tests"
+  ldap_admin_password    = "xguard-ldap"
 
   # Dedicated client/load-generator instance. Increase to a non-burstable type before scored runs.
   load_generator_instance_type = "m7i.xlarge"
@@ -120,15 +120,15 @@ locals {
 
   ############################ VPC configuration ############################
 
-  # The name of the VPC that will be created for the Defguard infrastructure.
-  vpc_name = "defguard-load-tests-vpc"
+  # The name of the VPC that will be created for the XGuard infrastructure.
+  vpc_name = "xguard-load-tests-vpc"
 
   # The CIDR block for the VPC. This defines the IP address range for the VPC and its subnets.
   # Deliberately off 10.0.0.0/16 so it does NOT overlap the default WireGuard location range
   # (10.0.0.1/24) that auto-adoption creates.
   vpc_cidr = "10.20.0.0/16"
 
-  # The tags to be applied to the Defguard VPC.
+  # The tags to be applied to the XGuard VPC.
   vpc_tags = {
     Name = local.vpc_name
   }
@@ -147,7 +147,7 @@ locals {
 }
 
 variable "key_name" {
-  description = "Name of the existing EC2 key pair attached to Defguard instances. Set TF_VAR_key_name or use a tfvars file."
+  description = "Name of the existing EC2 key pair attached to XGuard instances. Set TF_VAR_key_name or use a tfvars file."
   type        = string
   default     = null
 }
@@ -159,15 +159,15 @@ variable "ssh_admin_cidr" {
 }
 
 variable "core_image" {
-  description = "Defguard Core Docker image used by load tests. Override with TF_VAR_core_image."
+  description = "XGuard Core Docker image used by load tests. Override with TF_VAR_core_image."
   type        = string
-  default     = "ghcr.io/defguard/defguard:dev"
+  default     = "ghcr.io/sajjad-alaa/xguard-core:dev"
 }
 
 variable "edge_image" {
-  description = "Defguard Edge Docker image used by load tests. Override with TF_VAR_edge_image."
+  description = "XGuard Edge Docker image used by load tests. Override with TF_VAR_edge_image."
   type        = string
-  default     = "ghcr.io/defguard/defguard-proxy:dev"
+  default     = "ghcr.io/sajjad-alaa/xguard-proxy:dev"
 }
 
 terraform {
@@ -211,10 +211,10 @@ provider "aws" {
 }
 
 ###########################################################################
-########################## Defguard components ############################
+########################## XGuard components ############################
 ###########################################################################
 
-module "defguard_core" {
+module "xguard_core" {
   source        = "./modules/core-docker"
   instance_type = local.core_instance_type
   image         = var.core_image
@@ -237,12 +237,12 @@ module "defguard_core" {
 
   # Gateway and edge must be listening before Core's one-shot adoption runs.
   depends_on = [
-    module.defguard_gateway,
-    module.defguard_edge,
+    module.xguard_gateway,
+    module.xguard_edge,
   ]
 }
 
-module "defguard_edge" {
+module "xguard_edge" {
   source = "./modules/edge-docker"
 
   instance_type = local.edge_instance_type
@@ -257,7 +257,7 @@ module "defguard_edge" {
   network_interface_id = module.network.edge_network_interface_id
 }
 
-module "defguard_gateway" {
+module "xguard_gateway" {
   source = "../../modules/gateway"
 
   ami             = data.aws_ami.ubuntu[local.gateway_arch].id
@@ -300,7 +300,7 @@ module "vpc" {
 module "network" {
   source = "./modules/network"
 
-  name_prefix      = "defguard-load-tests"
+  name_prefix      = "xguard-load-tests"
   enable_rds       = false
   vpc_id           = module.vpc.vpc_id
   vpc_cidr         = local.vpc_cidr
@@ -333,7 +333,7 @@ module "openldap" {
   subnet_id                 = module.vpc.private_subnets[0]
   client_security_group_ids = [module.network.core_security_group_id, module.network.gateway_security_group_id, aws_security_group.load_generator.id]
   enable_ssh                = local.ssh_admin_cidr != null
-  name_prefix               = "defguard-load-tests"
+  name_prefix               = "xguard-load-tests"
   ldap_domain               = local.ldap_domain
   ldap_organization         = local.ldap_organization
   ldap_admin_password       = local.ldap_admin_password
@@ -350,7 +350,7 @@ module "postgres" {
   subnet_id              = module.vpc.private_subnets[1]
   core_security_group_id = module.network.core_security_group_id
   enable_ssh             = local.ssh_admin_cidr != null
-  name_prefix            = "defguard-load-tests"
+  name_prefix            = "xguard-load-tests"
   db_name                = local.db_name
   db_username            = local.db_username
   db_password            = local.db_password
@@ -363,7 +363,7 @@ module "postgres" {
 ###########################################################################
 
 resource "aws_security_group" "load_generator" {
-  name        = "defguard-load-tests-generator-sg"
+  name        = "xguard-load-tests-generator-sg"
   description = "Load-generator access"
   vpc_id      = module.vpc.vpc_id
 
@@ -402,7 +402,7 @@ resource "aws_network_interface" "load_generator" {
   security_groups = [aws_security_group.load_generator.id]
 
   tags = {
-    Name = "defguard-load-tests-generator-network-interface"
+    Name = "xguard-load-tests-generator-network-interface"
   }
 }
 
@@ -410,7 +410,7 @@ resource "aws_eip" "load_generator" {
   domain = "vpc"
 
   tags = {
-    Name = "defguard-load-tests-generator"
+    Name = "xguard-load-tests-generator"
   }
 }
 
@@ -439,7 +439,7 @@ resource "aws_instance" "load_generator" {
       - [systemctl, enable, --now, prometheus-node-exporter]
       - [systemctl, enable, --now, prometheus-process-exporter]
       - [bash, -lc, "runuser -u ubuntu -- env HOME=/home/ubuntu bash -lc 'curl --proto =https --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable'"]
-      - [bash, -lc, "runuser -u ubuntu -- git clone --recurse-submodules https://github.com/DefGuard/defguard.git /home/ubuntu/defguard"]
+      - [bash, -lc, "runuser -u ubuntu -- git clone --recurse-submodules https://github.com/Sajjad-alaa/xguard-core.git /home/ubuntu/xguard"]
   CLOUD_INIT
 
   user_data_replace_on_change = true
@@ -455,7 +455,7 @@ resource "aws_instance" "load_generator" {
   }
 
   tags = {
-    Name = "defguard-load-tests-generator"
+    Name = "xguard-load-tests-generator"
   }
 }
 
@@ -468,7 +468,7 @@ module "prometheus" {
   vpc_id                    = module.vpc.vpc_id
   subnet_id                 = module.vpc.private_subnets[0]
   gateway_security_group_id = module.network.gateway_security_group_id
-  name_prefix               = "defguard-load-tests"
+  name_prefix               = "xguard-load-tests"
   storage_gb                = local.prometheus_storage_gb
   scrape_interval           = "5s"
   grafana_admin_password    = local.grafana_admin_password
@@ -514,37 +514,37 @@ module "prometheus" {
 # First-access steps after apply:
 #   1. Core is private; reach its web UI and finish the setup wizard (2.0 has no admin-password
 #      env var). If you already have access to the private network (VPN, peering, bastion),
-#      open http://<defguard_core_private_address>:<core_http_port> directly. Otherwise enable
+#      open http://<xguard_core_private_address>:<core_http_port> directly. Otherwise enable
 #      SSH (set ssh_admin_cidr + ssh_key_name above) and tunnel through the gateway:
-#        ssh -L 8000:<defguard_core_private_address>:<core_http_port> ubuntu@<defguard_gateway_public_address>
+#        ssh -L 8000:<xguard_core_private_address>:<core_http_port> ubuntu@<xguard_gateway_public_address>
 #        open http://localhost:8000
-#   2. In Core, set the WireGuard location endpoint to defguard_gateway_public_address
+#   2. In Core, set the WireGuard location endpoint to xguard_gateway_public_address
 #      (adoption stores the gateway's private IP) so external clients can connect.
 #   3. In Core settings, set the enrollment URL to the edge public address; users enroll via
 #      the public Edge with an admin-generated token (no Core access needed).
 
-output "defguard_core_private_address" {
-  description = "IP address of Defguard Core instance in the internal network"
+output "xguard_core_private_address" {
+  description = "IP address of XGuard Core instance in the internal network"
   value       = module.network.core_private_ip
 }
 
-output "defguard_edge_public_address" {
-  description = "Public IP address of Defguard Edge instance"
+output "xguard_edge_public_address" {
+  description = "Public IP address of XGuard Edge instance"
   value       = module.network.edge_public_ip
 }
 
-output "defguard_edge_private_address" {
-  description = "Private IP address of Defguard Edge instance"
+output "xguard_edge_private_address" {
+  description = "Private IP address of XGuard Edge instance"
   value       = module.network.edge_private_ip
 }
 
-output "defguard_gateway_public_address" {
-  description = "Public IP address of Defguard Gateway instance"
+output "xguard_gateway_public_address" {
+  description = "Public IP address of XGuard Gateway instance"
   value       = module.network.gateway_public_ip
 }
 
-output "defguard_gateway_private_address" {
-  description = "Private IP address of Defguard Gateway instance"
+output "xguard_gateway_private_address" {
+  description = "Private IP address of XGuard Gateway instance"
   value       = module.network.gateway_private_ip
 }
 

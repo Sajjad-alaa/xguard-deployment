@@ -5,14 +5,14 @@ services:
     logging:
       driver: journald
       options:
-        tag: "defguard-core"
-    image: ghcr.io/defguard/defguard:__DEFGUARD_CORE_TAG__
+        tag: "xguard-core"
+    image: ghcr.io/sajjad-alaa/xguard-core:__XGUARD_CORE_TAG__
     env_file: .env
     environment:
-      DEFGUARD_DB_HOST: db
-      DEFGUARD_DB_PORT: 5432
-      DEFGUARD_ADOPT_EDGE: ${DEFGUARD_ADOPT_EDGE:-}
-      DEFGUARD_ADOPT_GATEWAY: ${DEFGUARD_ADOPT_GATEWAY:-}
+      XGUARD_DB_HOST: db
+      XGUARD_DB_PORT: 5432
+      XGUARD_ADOPT_EDGE: ${XGUARD_ADOPT_EDGE:-}
+      XGUARD_ADOPT_GATEWAY: ${XGUARD_ADOPT_GATEWAY:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -26,10 +26,10 @@ services:
     logging:
       driver: journald
       options:
-        tag: "defguard-edge"
-    image: ghcr.io/defguard/defguard-proxy:__DEFGUARD_PROXY_TAG__
+        tag: "xguard-edge"
+    image: ghcr.io/sajjad-alaa/xguard-proxy:__XGUARD_PROXY_TAG__
     volumes:
-      - ./.volumes/certs/edge:/etc/defguard/certs
+      - ./.volumes/certs/edge:/etc/xguard/certs
     ports:
       - "8080:8080"
       - "443:443"
@@ -44,15 +44,15 @@ services:
     logging:
       driver: journald
       options:
-        tag: "defguard-gateway"
-    image: ghcr.io/defguard/gateway:__DEFGUARD_GATEWAY_TAG__
+        tag: "xguard-gateway"
+    image: ghcr.io/sajjad-alaa/xguard-gateway:__XGUARD_GATEWAY_TAG__
     cap_add:
       - NET_ADMIN
     volumes:
-      - ./.volumes/certs/gateway:/etc/defguard/certs
+      - ./.volumes/certs/gateway:/etc/xguard/certs
     network_mode: "host"
     environment:
-      DEFGUARD_STATS_PERIOD: 10
+      XGUARD_STATS_PERIOD: 10
       HEALTH_PORT: 55003
 
   dockge:
@@ -62,7 +62,7 @@ services:
     logging:
       driver: journald
       options:
-        tag: "defguard-dockge"
+        tag: "xguard-dockge"
     ports:
       - "5001:5001"
     volumes:
@@ -78,7 +78,7 @@ services:
     logging:
       driver: journald
       options:
-        tag: "defguard-db"
+        tag: "xguard-db"
     image: postgres:18-alpine
     env_file: .env
     volumes:

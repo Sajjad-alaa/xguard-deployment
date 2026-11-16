@@ -1,5 +1,5 @@
 variable "vpc_id" {
-  description = "ID of the VPC the Defguard components are deployed into"
+  description = "ID of the VPC the XGuard components are deployed into"
   type        = string
 }
 
@@ -11,7 +11,7 @@ variable "vpc_cidr" {
 variable "name_prefix" {
   description = "Prefix for all created resource names (security groups, RDS parameter/subnet group, network interfaces). Override it to run more than one deployment in the same account/region/VPC without name collisions."
   type        = string
-  default     = "defguard"
+  default     = "xguard"
 }
 
 variable "public_subnet_id" {
@@ -84,15 +84,15 @@ variable "edge_https_port" {
 }
 
 variable "db_name" {
-  description = "Name of the database created for Defguard Core"
+  description = "Name of the database created for XGuard Core"
   type        = string
-  default     = "defguard"
+  default     = "xguard"
 }
 
 variable "db_username" {
   description = "Database username"
   type        = string
-  default     = "defguard"
+  default     = "xguard"
 }
 
 variable "db_password" {

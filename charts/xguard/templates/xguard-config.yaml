@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "xguard.fullname" . }}-config
+  labels:
+    {{- include "xguard.labels" . | nindent 4 }}
+data:
+  {{- if .Values.cookie.domain }}
+  XGUARD_COOKIE_DOMAIN: {{ .Values.cookie.domain }}
+  {{- end }}
+  XGUARD_COOKIE_INSECURE: {{ .Values.cookie.insecure | quote }}
+  XGUARD_DB_HOST: {{ .Values.postgresql.host | default (printf "%s-postgresql" (include "xguard.fullname" .)) }}
+  XGUARD_DB_PORT: {{ .Values.postgresql.port | quote}}
+  XGUARD_DB_NAME: {{ .Values.postgresql.auth.database }}
+  XGUARD_DB_USER: {{ .Values.postgresql.auth.username }}
+  XGUARD_GRPC_PORT: {{ .Values.service.grpc.port | quote }}
+  XGUARD_HTTP_PORT: {{ .Values.service.web.port | quote }}
+  XGUARD_ENROLLMENT_URL: {{ index .Values "xguard-proxy" "publicUrl" }}
+  {{- if .Values.proxyUrl }}
+  XGUARD_PROXY_URL: {{ .Values.proxyUrl }}
+  {{- end }}
+  XGUARD_URL: {{ .Values.publicUrl }}
+  XGUARD_WEBAUTHN_RP_ID: {{ .Values.ingress.web.host }}

@@ -1,4 +1,4 @@
-resource "aws_instance" "defguard_edge" {
+resource "aws_instance" "xguard_edge" {
   ami           = var.ami
   instance_type = var.instance_type
   key_name      = var.key_name
@@ -17,6 +17,6 @@ resource "aws_instance" "defguard_edge" {
   }
 
   tags = {
-    Name = "defguard-edge-instance"
+    Name = "xguard-edge-instance"
   }
 }

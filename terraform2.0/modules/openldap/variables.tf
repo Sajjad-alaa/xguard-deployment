@@ -54,7 +54,7 @@ variable "ldap_domain" {
 variable "ldap_organization" {
   description = "OpenLDAP organization name"
   type        = string
-  default     = "Defguard Load Tests"
+  default     = "XGuard Load Tests"
 }
 
 variable "ldap_admin_password" {

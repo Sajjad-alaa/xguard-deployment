@@ -1,15 +1,15 @@
 #!/bin/bash
-# Installs the defguard OVA maintenance CLI onto an already-deployed OVA VM,
+# Installs the xguard OVA maintenance CLI onto an already-deployed OVA VM,
 # which shipped without it. Idempotent - re-running just refreshes the CLI.
 #
-#   curl -fsSL https://raw.githubusercontent.com/DefGuard/deployment/main/ova/files/install-dg-ctl.sh | sudo bash
+#   curl -fsSL https://raw.githubusercontent.com/Sajjad-alaa/xguard-deployment/main/ova/files/install-dg-ctl.sh | sudo bash
 set -euo pipefail
 
-STACK_DIR="${DEFGUARD_STACK_DIR:-/opt/stacks/defguard}"
-OVA_DIR="${DEFGUARD_OVA_DIR:-/opt/defguard}"
-OVA_REPO="${DEFGUARD_OVA_REPO:-DefGuard/deployment}"
-MANIFEST_URL="${DEFGUARD_OVA_MANIFEST_URL:-https://raw.githubusercontent.com/$OVA_REPO/main/ova/manifest.json}"
-SOURCE_DIR="${DEFGUARD_OVA_SOURCE_DIR:-}"
+STACK_DIR="${XGUARD_STACK_DIR:-/opt/stacks/xguard}"
+OVA_DIR="${XGUARD_OVA_DIR:-/opt/xguard}"
+OVA_REPO="${XGUARD_OVA_REPO:-XGuard/deployment}"
+MANIFEST_URL="${XGUARD_OVA_MANIFEST_URL:-https://raw.githubusercontent.com/$OVA_REPO/main/ova/manifest.json}"
+SOURCE_DIR="${XGUARD_OVA_SOURCE_DIR:-}"
 
 log() { echo "[dg-ctl-install] $*"; }
 die() { echo "[dg-ctl-install] ERROR: $*" >&2; exit 1; }
@@ -17,7 +17,7 @@ die() { echo "[dg-ctl-install] ERROR: $*" >&2; exit 1; }
 [ "$(id -u)" = "0" ] || die "run as root (pipe into 'sudo bash')"
 if [ ! -f "$STACK_DIR/docker-compose.yml" ] \
   && [ ! -f "$STACK_DIR/docker-compose.yaml" ]; then
-  die "$STACK_DIR/docker-compose.yml or $STACK_DIR/docker-compose.yaml not found; this does not look like a defguard OVA host"
+  die "$STACK_DIR/docker-compose.yml or $STACK_DIR/docker-compose.yaml not found; this does not look like a xguard OVA host"
 fi
 
 # jq and zstd are baked into OVA 2.1 images but not into earlier ones.
@@ -63,9 +63,9 @@ ln -sf "$OVA_DIR/dg-ctl" /usr/local/bin/dg-ctl
 if [ ! -f "$OVA_DIR/state.json" ]; then
   env_value() { sed -n "s/^$1=//p" "$STACK_DIR/.env" | tail -n1; }
   jq -n \
-    --arg core "$(env_value DEFGUARD_CORE_TAG)" \
-    --arg proxy "$(env_value DEFGUARD_PROXY_TAG)" \
-    --arg gateway "$(env_value DEFGUARD_GATEWAY_TAG)" \
+    --arg core "$(env_value XGUARD_CORE_TAG)" \
+    --arg proxy "$(env_value XGUARD_PROXY_TAG)" \
+    --arg gateway "$(env_value XGUARD_GATEWAY_TAG)" \
     '{ova_version: "2.0-unknown", template_ref: "unknown",
       tags: {core: $core, proxy: $proxy, gateway: $gateway}}' > "$OVA_DIR/state.json"
   chmod 600 "$OVA_DIR/state.json"

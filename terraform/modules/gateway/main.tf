@@ -1,4 +1,4 @@
-resource "aws_instance" "defguard_gateway" {
+resource "aws_instance" "xguard_gateway" {
   ami           = var.ami
   instance_type = var.instance_type
 
@@ -10,7 +10,7 @@ resource "aws_instance" "defguard_gateway" {
     core_grpc_port  = var.core_grpc_port
     package_version = var.package_version
     nat             = var.nat
-    gateway_name    = "defguard-gateway-${var.network_id}"
+    gateway_name    = "xguard-gateway-${var.network_id}"
     arch            = var.arch
     log_level       = var.log_level
   })
@@ -21,6 +21,6 @@ resource "aws_instance" "defguard_gateway" {
   }
 
   tags = {
-    Name = "defguard-gateway-instance-${var.network_id}"
+    Name = "xguard-gateway-instance-${var.network_id}"
   }
 }

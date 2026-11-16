@@ -1,13 +1,13 @@
-# Deploy Defguard 2.0 into an EXISTING VPC.
+# Deploy XGuard 2.0 into an EXISTING VPC.
 #
 # Unlike examples/basic (which creates its own VPC + subnets + NAT), this example takes a
-# VPC and subnets you already run and places the Defguard components into them. It creates
+# VPC and subnets you already run and places the XGuard components into them. It creates
 # only the security groups, network interfaces, EIPs and the RDS database (via the shared
 # modules/network submodule) plus the three component instances.
 #
 # Your network must satisfy these requirements:
 #   - core_subnet_id    : a PRIVATE subnet with outbound internet (a NAT gateway/instance).
-#                         Core has no public IP and must reach the Defguard APT repo +
+#                         Core has no public IP and must reach the XGuard APT repo +
 #                         the license server on first boot.
 #   - public_subnet_id  : a PUBLIC subnet (internet gateway route) so the Gateway and Edge
 #                         EIPs work. Gateway needs inbound UDP; Edge needs inbound HTTPS. To put
@@ -43,9 +43,9 @@ locals {
 
   ########################## Database configuration #########################
   db_engine_version = "18"
-  db_name           = "defguard"
-  db_username       = "defguard"
-  db_password       = "defguard"
+  db_name           = "xguard"
+  db_username       = "xguard"
+  db_password       = "xguard"
   db_port           = 5432
   db_storage        = 20
   db_instance_class = "db.t3.micro"
@@ -152,7 +152,7 @@ data "aws_ami" "ubuntu" {
 
 module "network" {
   # source = "../../modules/network"
-  source = "github.com/DefGuard/deployment//terraform2.0/modules/network?ref=main"
+  source = "github.com/Sajjad-alaa/xguard-deployment//terraform2.0/modules/network?ref=main"
 
   vpc_id            = var.vpc_id
   vpc_cidr          = data.aws_vpc.selected.cidr_block
@@ -180,12 +180,12 @@ module "network" {
 }
 
 ###########################################################################
-########################## Defguard components ############################
+########################## XGuard components ############################
 ###########################################################################
 
-module "defguard_core" {
+module "xguard_core" {
   # source = "../../modules/core"
-  source          = "github.com/DefGuard/deployment//terraform2.0/modules/core?ref=main"
+  source          = "github.com/Sajjad-alaa/xguard-deployment//terraform2.0/modules/core?ref=main"
   instance_type   = local.core_instance_type
   package_version = local.core_package_version
   ami             = data.aws_ami.ubuntu[local.core_arch].id
@@ -205,14 +205,14 @@ module "defguard_core" {
 
   # Gateway and edge must be listening before Core runs its one-shot adoption.
   depends_on = [
-    module.defguard_gateway,
-    module.defguard_edge,
+    module.xguard_gateway,
+    module.xguard_edge,
   ]
 }
 
-module "defguard_edge" {
+module "xguard_edge" {
   # source = "../../modules/edge"
-  source = "github.com/DefGuard/deployment//terraform2.0/modules/edge?ref=main"
+  source = "github.com/Sajjad-alaa/xguard-deployment//terraform2.0/modules/edge?ref=main"
 
   instance_type   = local.edge_instance_type
   package_version = local.edge_package_version
@@ -225,9 +225,9 @@ module "defguard_edge" {
   network_interface_id = module.network.edge_network_interface_id
 }
 
-module "defguard_gateway" {
+module "xguard_gateway" {
   # source = "../../modules/gateway"
-  source = "github.com/DefGuard/deployment//terraform2.0/modules/gateway?ref=main"
+  source = "github.com/Sajjad-alaa/xguard-deployment//terraform2.0/modules/gateway?ref=main"
 
   ami             = data.aws_ami.ubuntu[local.gateway_arch].id
   instance_type   = local.gateway_instance_type
@@ -249,27 +249,27 @@ module "defguard_gateway" {
 # Then complete the setup wizard, set the enrollment URL to the Edge public address, and adopt
 # a WireGuard location whose CIDR does NOT overlap your VPC CIDR.
 
-output "defguard_core_private_address" {
-  description = "Private IP of the Defguard Core instance"
+output "xguard_core_private_address" {
+  description = "Private IP of the XGuard Core instance"
   value       = module.network.core_private_ip
 }
 
-output "defguard_edge_public_address" {
-  description = "Public IP of the Defguard Edge instance"
+output "xguard_edge_public_address" {
+  description = "Public IP of the XGuard Edge instance"
   value       = module.network.edge_public_ip
 }
 
-output "defguard_edge_private_address" {
-  description = "Private IP of the Defguard Edge instance"
+output "xguard_edge_private_address" {
+  description = "Private IP of the XGuard Edge instance"
   value       = module.network.edge_private_ip
 }
 
-output "defguard_gateway_public_address" {
-  description = "Public IP of the Defguard Gateway instance"
+output "xguard_gateway_public_address" {
+  description = "Public IP of the XGuard Gateway instance"
   value       = module.network.gateway_public_ip
 }
 
-output "defguard_gateway_private_address" {
-  description = "Private IP of the Defguard Gateway instance"
+output "xguard_gateway_private_address" {
+  description = "Private IP of the XGuard Gateway instance"
   value       = module.network.gateway_private_ip
 }

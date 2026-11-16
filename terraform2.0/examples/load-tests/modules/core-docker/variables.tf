@@ -2,7 +2,7 @@ variable "ami" {
   type = string
 }
 variable "image" {
-  description = "Defguard Core container image. Pin this to the image under test."
+  description = "XGuard Core container image. Pin this to the image under test."
   type        = string
 }
 variable "instance_type" {

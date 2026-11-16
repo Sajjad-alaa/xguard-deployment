@@ -1,4 +1,4 @@
 output "instance_id" {
-  description = "ID of Defguard Gateway instance"
-  value       = aws_instance.defguard_gateway.id
+  description = "ID of XGuard Gateway instance"
+  value       = aws_instance.xguard_gateway.id
 }

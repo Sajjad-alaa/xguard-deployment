@@ -1,22 +1,22 @@
 version: "3"
 services:
   gateway:
-    image: ghcr.io/defguard/gateway:latest
+    image: ghcr.io/sajjad-alaa/xguard-gateway:latest
     restart: unless-stopped
     network_mode: "host"
     environment:
       # load variables from .env file
-      - DEFGUARD_GRPC_URL
-      - DEFGUARD_TOKEN
-      - DEFGUARD_STATS_PERIOD
+      - XGUARD_GRPC_URL
+      - XGUARD_TOKEN
+      - XGUARD_STATS_PERIOD
       - RUST_LOG=debug
-      # SSL setup guide: https://docs.defguard.net/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
-      # - DEFGUARD_GRPC_CA: /ssl/defguard-ca.pem
+      # SSL setup guide: https://docs.xguard.local/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
+      # - XGUARD_GRPC_CA: /ssl/xguard-ca.pem
     ports:
       # wireguard endpoint
       - "50051:50051/udp"
     #volumes:
-      # SSL setup guide: https://docs.defguard.net/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
+      # SSL setup guide: https://docs.xguard.local/deployment-strategies/grpc-ssl-communication#custom-ssl-ca-and-certificates
       #- ./.volumes/ssl:/ssl
     cap_add:
       - NET_ADMIN

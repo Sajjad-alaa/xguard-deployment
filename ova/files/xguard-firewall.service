@@ -1,0 +1,13 @@
+[Unit]
+Description=XGuard host forwarding rules for the WireGuard gateway
+After=docker.service
+Wants=docker.service
+
+[Service]
+Type=oneshot
+StandardOutput=append:/var/log/xguard-startup.log
+StandardError=append:/var/log/xguard-startup.log
+ExecStart=/bin/bash /opt/stacks/xguard/xguard-firewall.sh
+
+[Install]
+WantedBy=multi-user.target

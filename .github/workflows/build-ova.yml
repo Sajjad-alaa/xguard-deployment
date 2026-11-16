@@ -4,16 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       core_tag:
-        description: "defguard core image tag"
+        description: "xguard core image tag"
         required: true
       proxy_tag:
-        description: "defguard proxy image tag"
+        description: "xguard proxy image tag"
         required: true
       gateway_tag:
-        description: "defguard gateway image tag"
+        description: "xguard gateway image tag"
         required: true
       publish_latest:
-        description: "Also overwrite defguard-latest.ova (off = test build)"
+        description: "Also overwrite xguard-latest.ova (off = test build)"
         type: boolean
         default: false
 
@@ -60,7 +60,7 @@ jobs:
           curl -fLO https://releases.ubuntu.com/24.04.4/ubuntu-24.04.4-live-server-amd64.iso
 
       - name: Packer init
-        run: packer init defguard.pkr.hcl
+        run: packer init xguard.pkr.hcl
 
       - name: Packer build
         env:
@@ -74,7 +74,7 @@ jobs:
             -var "core_tag=${CORE_TAG}" \
             -var "proxy_tag=${PROXY_TAG}" \
             -var "gateway_tag=${GATEWAY_TAG}" \
-            defguard.pkr.hcl
+            xguard.pkr.hcl
 
       - name: Upload OVA to S3
         env:
@@ -86,10 +86,10 @@ jobs:
           GATEWAY_TAG: ${{ github.event.inputs.gateway_tag || '2' }}
         run: |
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          FILENAME="defguard_${TIMESTAMP}_core-${CORE_TAG}_edge-${PROXY_TAG}_gateway-${GATEWAY_TAG}.ova"
-          ls -lh output/defguard/defguard.ova
-          aws s3 cp output/defguard/defguard.ova "s3://defguard-downloads/ova/${FILENAME}"
-          echo "Uploaded: s3://defguard-downloads/ova/${FILENAME}"
+          FILENAME="xguard_${TIMESTAMP}_core-${CORE_TAG}_edge-${PROXY_TAG}_gateway-${GATEWAY_TAG}.ova"
+          ls -lh output/xguard/xguard.ova
+          aws s3 cp output/xguard/xguard.ova "s3://xguard-downloads/ova/${FILENAME}"
+          echo "Uploaded: s3://xguard-downloads/ova/${FILENAME}"
 
       - name: Test deployment modes on Proxmox
         env:
@@ -106,13 +106,13 @@ jobs:
           echo "${PROXMOX_SSH_KEY}" > ~/.ssh/proxmox_ci
           chmod 600 ~/.ssh/proxmox_ci
           SSHOPT="-i $HOME/.ssh/proxmox_ci -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
-          scp $SSHOPT output/defguard/defguard.ova test/test-deployment-modes.sh "ovaci@${PROXMOX_HOST}:/tmp/"
+          scp $SSHOPT output/xguard/xguard.ova test/test-deployment-modes.sh "ovaci@${PROXMOX_HOST}:/tmp/"
           # Forward only the secrets that are set; unset ones fall back to the script's defaults.
           REMOTE_ENV="STACK_TIMEOUT=1200"
           for v in PVE_STORAGE SNIPPET_STORAGE TEST_IP_PREFIX TEST_GW VMID_BASE; do
             [ -n "${!v}" ] && REMOTE_ENV="$REMOTE_ENV $v='${!v}'"
           done
-          ssh $SSHOPT "ovaci@${PROXMOX_HOST}" "$REMOTE_ENV bash /tmp/test-deployment-modes.sh /tmp/defguard.ova"
+          ssh $SSHOPT "ovaci@${PROXMOX_HOST}" "$REMOTE_ENV bash /tmp/test-deployment-modes.sh /tmp/xguard.ova"
 
       - name: Publish as latest
         if: ${{ inputs.publish_latest }}
@@ -121,6 +121,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: eu-central-1
         run: |
-          aws s3 cp output/defguard/defguard.ova "s3://defguard-downloads/ova/defguard-latest.ova" \
+          aws s3 cp output/xguard/xguard.ova "s3://xguard-downloads/ova/xguard-latest.ova" \
             --cache-control "no-cache"
-          echo "Updated: s3://defguard-downloads/ova/defguard-latest.ova"
+          echo "Updated: s3://xguard-downloads/ova/xguard-latest.ova"
